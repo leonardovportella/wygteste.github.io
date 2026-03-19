@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WYG – Where You Going?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#061C43;--navy2:#0a2558;--deep:#0b3c5d;--teal:#125d7a;
+  --pur:#3e2c7d;--hi:#9c19a3;--hi2:#b020b5;--slate:#aab7c4;
+  --gb:rgba(255,255,255,.10);--glass:rgba(255,255,255,.055);
+  --cold:#00b4d8;--warm:#f77f00;--hot:#e63946;--ok:#06d6a0;
+  --ff:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--navy);color:#fff;overflow-x:hidden}
+.pg{display:none;min-height:100vh}.pg.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ain{animation:up .5s ease both}.d1{animation-delay:.1s}.d2{animation-delay:.22s}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:11px;font-family:var(--fb);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none;white-space:nowrap;justify-content:center}
+.btn-p{background:var(--hi);color:#fff}.btn-p:hover{background:var(--hi2);transform:translateY(-2px);box-shadow:0 10px 28px rgba(156,25,163,.38)}
+.btn-s{background:var(--glass);color:#fff;border:1px solid var(--gb)}.btn-s:hover{background:rgba(255,255,255,.09)}
+.btn-o{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.28)}.btn-o:hover{border-color:#fff;background:rgba(255,255,255,.05)}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:9px}.btn-lg{padding:15px 32px;font-size:16px;border-radius:14px}
+.btn-ok{background:rgba(6,214,160,.11);color:var(--ok);border:1px solid rgba(6,214,160,.26)}.btn-ok:hover{background:rgba(6,214,160,.2)}
+.btn-err{background:rgba(230,57,70,.11);color:var(--hot);border:1px solid rgba(230,57,70,.26)}.btn-err:hover{background:rgba(230,57,70,.2)}
+.btn-full{width:100%}
+/* FORMS */
+.fg{margin-bottom:15px}
+.fl{display:block;font-size:10px;font-weight:700;color:var(--slate);margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+.fi{width:100%;padding:12px 14px;background:var(--glass);border:1.5px solid var(--gb);border-radius:11px;color:#fff;font-family:var(--fb);font-size:14px;outline:none;transition:all .2s}
+.fi:focus{border-color:var(--hi);background:rgba(255,255,255,.05)}
+.fi::placeholder{color:rgba(170,183,196,.38)}
+select.fi option{background:var(--navy2);color:#fff}
+/* CARDS */
+.gc{background:var(--glass);border:1px solid var(--gb);border-radius:18px;backdrop-filter:blur(12px)}
+.pc{padding:20px;background:var(--glass);border:1px solid var(--gb);border-radius:16px}
+.pct{font-size:14px;font-weight:700;margin-bottom:2px}.pcs{font-size:11px;color:var(--slate);margin-bottom:15px}
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700}
+.bdg-ok{background:rgba(6,214,160,.12);color:var(--ok)}.bdg-warn{background:rgba(247,127,0,.12);color:var(--warm)}
+.bdg-err{background:rgba(230,57,70,.12);color:var(--hot)}.bdg-pur{background:rgba(156,25,163,.12);color:#d966e0}
+.bdg-info{background:rgba(0,180,216,.12);color:var(--cold)}
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{text-align:left;padding:10px 14px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--slate);border-bottom:1px solid var(--gb)}
+.dt td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.032);vertical-align:middle}
+.dt tr:hover td{background:rgba(255,255,255,.018)}.dt tr:last-child td{border-bottom:none}
+/* TOGGLE */
+.tog{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.12);position:relative;transition:background .3s;cursor:pointer;border:none;flex-shrink:0}
+.tog.on{background:var(--hi)}.tog::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .3s}.tog.on::after{transform:translateX(18px)}
+/* TOASTS */
+#toasts{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:calc(100vw - 32px)}
+.toast{background:rgba(8,30,70,.97);border:1px solid var(--gb);backdrop-filter:blur(22px);border-radius:13px;padding:12px 16px;display:flex;align-items:center;gap:9px;font-size:13px;min-width:240px;animation:up .3s ease;pointer-events:auto}
+.toast.ok{border-color:rgba(6,214,160,.36)}.toast.err{border-color:rgba(230,57,70,.36)}.toast.info{border-color:rgba(156,25,163,.36)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--gb);border-radius:2px}
+.divl{height:1px;background:var(--gb);margin:18px 0}
+/* CHIP */
+.chip{display:inline-flex;align-items:center;padding:4px 11px;background:var(--glass);border:1px solid var(--gb);border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;margin:0 4px 6px 0;color:var(--slate)}
+.chip:hover,.chip.on{background:rgba(156,25,163,.12);border-color:rgba(156,25,163,.26);color:#fff}
+/* AV */
+.av{border-radius:50%;background:linear-gradient(135deg,var(--hi),var(--pur));display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+/* CHART BAR */
+.chart-bar-wrap{display:flex;flex-direction:column;gap:9px}
+.cbar{display:flex;align-items:center;gap:9px}
+.cbar-lbl{font-size:11px;color:var(--slate);width:70px;flex-shrink:0;text-align:right}
+.cbar-bg{flex:1;height:9px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden}
+.cbar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--hi),#d966e0)}
+.cbar-val{font-size:11px;font-weight:700;color:#d966e0;width:44px;flex-shrink:0}
+/* PHOTO UPLOAD */
+.photo-grid{display:flex;gap:9px;flex-wrap:wrap;margin-top:8px}
+.photo-slot{width:76px;height:76px;border-radius:11px;overflow:hidden;flex-shrink:0;position:relative;border:1.5px solid var(--gb);transition:all .2s}
+.photo-slot:hover{border-color:var(--hi)}.photo-slot img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-add{width:76px;height:76px;border-radius:11px;background:rgba(255,255,255,.03);border:1.5px dashed rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;transition:all .2s;flex-shrink:0}
+.photo-add:hover{border-color:var(--hi);background:rgba(156,25,163,.07)}.photo-add span{font-size:10px;color:var(--slate)}
+.photo-rm{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.72);border:none;cursor:pointer;color:#fff;font-size:9px;display:none;align-items:center;justify-content:center}
+.photo-slot:hover .photo-rm{display:flex}
+input[type=file]{display:none}
+/* AI CHAT */
+.aichat{background:var(--glass);border:1px solid var(--gb);border-radius:16px;display:flex;flex-direction:column;height:420px}
+.aich{padding:13px 16px;border-bottom:1px solid var(--gb);display:flex;align-items:center;gap:9px}
+.aiav{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--hi),var(--pur));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;font-family:var(--ff)}
+.aicm{flex:1;padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:9px}
+.aim{max-width:86%;padding:10px 13px;border-radius:13px;font-size:12.5px;line-height:1.56}
+.aim.bot{background:rgba(62,44,125,.26);border:1px solid rgba(62,44,125,.34);align-self:flex-start;border-radius:3px 13px 13px 13px}
+.aim.usr{background:rgba(156,25,163,.16);border:1px solid rgba(156,25,163,.26);align-self:flex-end;border-radius:13px 3px 13px 13px}
+.aicf{padding:9px 12px;border-top:1px solid var(--gb);display:flex;gap:7px}
+.aicf input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:8px;padding:8px 12px;color:#fff;font-family:var(--fb);font-size:13px;outline:none}
+.aicf input:focus{border-color:var(--hi)}
+.aicf button{width:34px;height:34px;border-radius:8px;background:var(--hi);border:none;cursor:pointer;color:#fff;font-size:15px;transition:background .2s;display:flex;align-items:center;justify-content:center}
+.aicf button:hover{background:var(--hi2)}
+.dots{display:flex;gap:4px;padding:5px 0}.dots span{width:5px;height:5px;border-radius:50%;background:var(--slate);animation:pulse 1.4s infinite}.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+/* MODAL */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(5px);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.mov.show{display:flex;animation:fi .2s}
+.mo{background:#0b2158;border:1px solid var(--gb);border-radius:20px;padding:26px;width:100%;max-width:440px;animation:up .28s;max-height:90vh;overflow-y:auto}
+.mot{font-family:var(--ff);font-size:18px;font-weight:800;letter-spacing:-.5px;margin-bottom:18px}
+.moa{display:flex;gap:9px;margin-top:18px;justify-content:flex-end;flex-wrap:wrap}
+/* BENEFIT CARD */
+.bc{background:var(--glass);border:1px solid var(--gb);border-radius:13px;padding:14px;display:flex;align-items:center;gap:12px;transition:all .2s;margin-bottom:8px}
+.bc:hover{border-color:rgba(156,25,163,.26);background:rgba(255,255,255,.038)}
+.bico{width:42px;height:42px;border-radius:10px;background:rgba(156,25,163,.11);border:1px solid rgba(156,25,163,.19);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.bn{font-weight:600;font-size:13px;margin-bottom:2px}.bpts{font-size:12px;color:#d966e0;font-weight:600}.bst{font-size:11px;color:var(--slate);margin-top:1px}
+/* TX ROW */
+.txrow{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.02);border-radius:9px;margin-bottom:7px;border:1px solid rgba(255,255,255,.032)}
+.txic{width:32px;height:32px;border-radius:8px;background:rgba(156,25,163,.12);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;color:#d966e0;font-weight:700;letter-spacing:-.3px}
+.txin{flex:1}.txin-t{font-size:12px;font-weight:600}.txin-s{font-size:10px;color:var(--slate)}
+/* POINTS PREVIEW */
+.pts-prev{display:none;padding:13px;background:rgba(156,25,163,.09);border:1px solid rgba(156,25,163,.22);border-radius:10px;margin-bottom:15px}
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(6,28,67,.93);backdrop-filter:blur(24px);border-bottom:1px solid var(--gb)}
+.nlogo{display:flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none}
+.nlinks{display:flex;gap:28px;list-style:none}
+.nlinks a{color:var(--slate);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s;cursor:pointer}.nlinks a:hover{color:#fff}
+.ncta{display:flex;gap:9px;align-items:center}
+/* LANDING */
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:120px 56px 80px;gap:56px;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none}
+.hg1{position:absolute;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(156,25,163,.14) 0%,transparent 68%);top:-80px;right:0}
+.hg2{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(18,93,122,.17) 0%,transparent 68%);bottom:-60px;left:40px}
+.hgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:55px 55px}
+.hc{position:relative;z-index:1}
+.htag{display:inline-flex;align-items:center;gap:7px;background:rgba(156,25,163,.11);border:1px solid rgba(156,25,163,.26);color:#d966e0;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:700;margin-bottom:18px;letter-spacing:.6px;text-transform:uppercase}
+.htag::before{content:'';width:6px;height:6px;border-radius:50%;background:#d966e0;animation:pulse 2s infinite}
+.htitle{font-family:var(--ff);font-weight:800;font-size:clamp(40px,5vw,68px);line-height:1.04;letter-spacing:-2px;margin-bottom:18px}.htitle span{color:var(--hi)}
+.hsub{font-size:15px;line-height:1.74;color:var(--slate);margin-bottom:32px;max-width:420px}
+.hacts{display:flex;gap:12px;flex-wrap:wrap}
+.hfree{display:flex;align-items:center;gap:8px;margin-top:18px;font-size:13px;color:var(--ok)}.hfree::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--ok);flex-shrink:0}
+.phone-wrap{position:relative;z-index:1;display:flex;justify-content:center}
+.phone{width:245px;height:508px;background:linear-gradient(145deg,#0c2860,#061C43);border-radius:34px;border:1.5px solid rgba(255,255,255,.12);box-shadow:0 40px 80px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden;padding:18px 15px 15px;display:flex;flex-direction:column;animation:float 4.5s ease-in-out infinite}
+.phone-notch{width:62px;height:5px;background:rgba(255,255,255,.09);border-radius:3px;margin:0 auto 14px}
+.pbar{display:flex;justify-content:space-around;padding-top:11px;border-top:1px solid rgba(255,255,255,.07);margin-top:auto;font-size:14px}
+.sec{padding:88px 56px;position:relative}
+.slabel{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--hi);margin-bottom:11px}
+.stitle{font-family:var(--ff);font-weight:800;font-size:clamp(30px,4vw,48px);letter-spacing:-2px;line-height:1.08;margin-bottom:14px}
+.ssub{font-size:15px;color:var(--slate);line-height:1.74;max-width:520px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+.step{padding:30px 26px;border-radius:18px;background:var(--glass);border:1px solid var(--gb);position:relative;overflow:hidden;transition:all .3s}
+.step:hover{transform:translateY(-5px);border-color:rgba(156,25,163,.38);box-shadow:0 18px 36px rgba(0,0,0,.18)}
+.snum{font-family:var(--ff);font-size:76px;font-weight:800;color:rgba(255,255,255,.03);position:absolute;top:8px;right:14px;line-height:1}
+.sico{width:42px;height:42px;border-radius:11px;background:rgba(156,25,163,.12);border:1px solid rgba(156,25,163,.22);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:16px}
+.stept{font-family:var(--ff);font-weight:700;font-size:17px;margin-bottom:8px}.stepts{font-size:13px;color:var(--slate);line-height:1.66}
+.vp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:48px}
+.vp{padding:28px;border-radius:16px;background:var(--glass);border:1px solid var(--gb);transition:all .3s}.vp:hover{transform:translateY(-3px);border-color:rgba(156,25,163,.32)}
+.vp-ico{width:40px;height:40px;border-radius:10px;background:rgba(156,25,163,.12);border:1px solid rgba(156,25,163,.2);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px}
+.vp-t{font-family:var(--ff);font-size:16px;font-weight:700;margin-bottom:7px}.vp-s{font-size:13px;color:var(--slate);line-height:1.66}
+.pts-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;margin-top:48px}
+.ptsr{display:flex;flex-direction:column;gap:7px}
+.ptsr-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--glass);border-radius:10px;border:1px solid var(--gb)}
+.ptsr-row.hi{background:rgba(156,25,163,.09);border-color:rgba(156,25,163,.26)}
+.ptsr-row span{font-size:13px;color:var(--slate)}.ptsr-row strong{font-weight:700;color:#d966e0}
+.cta-b{background:linear-gradient(135deg,rgba(62,44,125,.4),rgba(156,25,163,.15));border:1px solid rgba(156,25,163,.2);border-radius:24px;padding:54px;display:flex;align-items:center;justify-content:space-between;gap:36px;overflow:hidden;position:relative}
+.cta-b::before{content:'';position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(156,25,163,.12) 0%,transparent 70%);right:-80px;top:-80px;pointer-events:none}
+.footer{padding:48px 56px;border-top:1px solid var(--gb)}
+.fg-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:46px;margin-bottom:42px}
+.fc h4{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate);margin-bottom:13px}
+.fc a{display:block;color:rgba(255,255,255,.56);text-decoration:none;font-size:13px;margin-bottom:8px;transition:color .2s;cursor:pointer}.fc a:hover{color:#fff}
+.fbot{display:flex;justify-content:space-between;align-items:center;padding-top:22px;border-top:1px solid var(--gb);font-size:12px;color:var(--slate)}
+/* AUTH */
+.auth-wrap{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.auth-l{background:linear-gradient(140deg,var(--pur) 0%,var(--navy) 100%);padding:48px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.auth-l-bg{position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(156,25,163,.24) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(18,93,122,.2) 0%,transparent 50%);pointer-events:none}
+.auth-lc{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center}
+.auth-lt{font-family:var(--ff);font-size:40px;font-weight:800;letter-spacing:-2px;line-height:1.08;margin-bottom:13px}
+.auth-ls{font-size:14px;color:rgba(255,255,255,.62);line-height:1.68;max-width:320px}
+.auth-r{background:var(--navy);padding:48px;display:flex;align-items:center;justify-content:center}
+.auth-form{width:100%;max-width:370px}
+.auth-ft{font-family:var(--ff);font-size:26px;font-weight:800;letter-spacing:-1px;margin-bottom:5px}
+.auth-fs{font-size:13px;color:var(--slate);margin-bottom:26px}
+.btn-goog{width:100%;background:rgba(255,255,255,.06);border:1.5px solid var(--gb);color:#fff;padding:12px;border-radius:11px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;font-family:var(--fb)}
+.btn-goog:hover{background:rgba(255,255,255,.1);transform:translateY(-1px)}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0}.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--gb)}.divider span{font-size:11px;color:var(--slate)}
+.asw{text-align:center;margin-top:14px;font-size:13px;color:var(--slate)}.asw a{color:var(--hi);cursor:pointer;font-weight:600;text-decoration:none}
+.auth-free-note{margin-top:14px;padding:11px 13px;background:rgba(6,214,160,.07);border:1px solid rgba(6,214,160,.18);border-radius:10px;font-size:12px;color:rgba(6,214,160,.8);line-height:1.5;text-align:center}
+/* DASHBOARD */
+.dash{display:flex;min-height:100vh}
+.sb{width:240px;background:rgba(8,28,72,.9);border-right:1px solid var(--gb);padding:22px 0;position:fixed;top:0;left:0;bottom:0;backdrop-filter:blur(24px);z-index:50;display:flex;flex-direction:column;overflow-y:auto;transition:transform .3s}
+.sb-logo{padding:0 16px 20px;border-bottom:1px solid var(--gb);display:flex;align-items:center;gap:9px;cursor:pointer}
+.sb-lt{font-family:var(--ff);font-size:13px;font-weight:700;color:var(--slate)}
+.sb-sec{padding:14px 8px 0}
+.sb-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--slate);padding:0 8px;margin-bottom:5px}
+.sbi{display:flex;align-items:center;gap:8px;padding:9px 8px;border-radius:10px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.5);font-size:13px;font-weight:500;margin-bottom:2px;user-select:none;border:1px solid transparent}
+.sbi:hover{background:var(--glass);color:#fff}.sbi.on{background:rgba(156,25,163,.12);color:#fff;border-color:rgba(156,25,163,.2)}
+.sbi .ic{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.sb-ft{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--gb)}
+.dmain{margin-left:240px;flex:1;padding:26px;min-height:100vh;background:rgba(4,18,52,.28)}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;gap:12px;flex-wrap:wrap}
+.dtitle{font-family:var(--ff);font-size:22px;font-weight:800;letter-spacing:-.8px}
+.dsub{font-size:13px;color:var(--slate);margin-top:2px}
+.tab-c{display:none}.tab-c.on{display:block}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:16px}
+.sc{padding:18px;border-radius:15px;background:var(--glass);border:1px solid var(--gb);transition:all .3s}.sc:hover{transform:translateY(-2px);border-color:rgba(156,25,163,.26)}
+.slb2{font-size:10px;font-weight:700;color:var(--slate);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
+.sv{font-family:var(--ff);font-size:26px;font-weight:800;letter-spacing:-.8px;margin-bottom:2px}
+.schange{font-size:11px}.schange.up{color:var(--ok)}.schange.dn{color:var(--hot)}.schange.n{color:var(--slate)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.bli{display:flex;align-items:center;gap:11px;padding:11px 13px;background:rgba(255,255,255,.02);border-radius:10px;margin-bottom:7px;border:1px solid rgba(255,255,255,.032);transition:all .2s}.bli:hover{background:rgba(255,255,255,.04);border-color:rgba(156,25,163,.24)}
+.blic{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--hi),var(--pur));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+/* MOBILE NAV TOGGLE */
+.mob-nav-btn{display:none;background:none;border:1px solid var(--gb);border-radius:9px;padding:7px 10px;cursor:pointer;color:#fff;font-size:16px}
+.sb-close{display:none;background:none;border:none;cursor:pointer;color:var(--slate);font-size:18px;position:absolute;top:16px;right:14px}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
+
+/* ══════════════════
+   MOBILE RESPONSIVE
+══════════════════ */
+@media(max-width:900px){
+  /* NAV */
+  .nav{padding:13px 20px}
+  .nlinks{display:none}
+  .mob-nav-btn{display:flex;align-items:center;gap:6px}
+
+  /* HERO */
+  .hero{grid-template-columns:1fr;padding:100px 24px 60px;gap:40px}
+  .phone-wrap{justify-content:center}
+  .htitle{font-size:clamp(36px,8vw,52px)}
+
+  /* SECTIONS */
+  .sec{padding:60px 24px}
+  .steps{grid-template-columns:1fr}
+  .vp-grid{grid-template-columns:1fr}
+  .pts-grid{grid-template-columns:1fr;gap:24px}
+  .forb-grid{grid-template-columns:1fr;gap:32px}
+  .cta-b{flex-direction:column;padding:36px 26px;text-align:center}
+  .cta-b>div:last-child{justify-content:center}
+  .fg-grid{grid-template-columns:1fr 1fr;gap:28px}
+
+  /* AUTH */
+  .auth-wrap{grid-template-columns:1fr}
+  .auth-l{display:none}
+  .auth-r{padding:32px 24px;align-items:flex-start}
+
+  /* DASHBOARD */
+  .sb{transform:translateX(-100%);width:260px}
+  .sb.open{transform:translateX(0)}
+  .sb-close{display:block}
+  .sb-overlay.show{display:block}
+  .dmain{margin-left:0;padding:18px}
+  .mob-nav-btn{display:flex}
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .g2{grid-template-columns:1fr}
+  .g3{grid-template-columns:1fr}
+
+  /* POINTS PAGE — full mobile optimized */
+  .points-mobile-full{display:flex;flex-direction:column;gap:16px}
+}
+@media(max-width:480px){
+  .sg{grid-template-columns:1fr 1fr}
+  .hacts{flex-direction:column}
+  .hacts .btn-lg{width:100%}
+  .fg-grid{grid-template-columns:1fr}
+  .fbot{flex-direction:column;gap:8px;text-align:center}
+  .nav{padding:12px 16px}
+  .auth-r{padding:24px 16px}
+  .auth-form{max-width:100%}
+  .dtitle{font-size:19px}
+  .moa{flex-direction:column}
+  .moa .btn{width:100%}
+  .dhead{flex-direction:column;align-items:stretch}
+  .dhead>div:last-child{display:flex;gap:8px;flex-wrap:wrap}
+  .dhead>div:last-child .btn,.dhead>div:last-child select{flex:1}
+}
+</style>
+</head>
+<body>
+<div id="toasts"></div>
+
+<!-- ════════════════════════════════
+     LANDING
+════════════════════════════════ -->
+<div id="pg-landing" class="pg on">
+<nav class="nav">
+  <a class="nlogo" onclick="show('landing')">
+    <img src="wyglogo_transparente.svg" alt="WYG" height="36" onerror="this.style.display='none'">
+    <span style="font-family:var(--ff);font-weight:800;font-size:19px;letter-spacing:-.4px;">WYG</span>
+  </a>
+  <ul class="nlinks">
+    <li><a href="#s-how">O produto</a></li>
+    <li><a href="#s-valor">Para o bar</a></li>
+    <li><a href="#s-pontos">Pontos</a></li>
+    <li><a href="#s-free">Preços</a></li>
+    <li><a href="#s-footer">Contato</a></li>
+  </ul>
+  <div class="ncta">
+    <button class="btn btn-s btn-sm" onclick="show('login')">Entrar</button>
+    <button class="btn btn-p btn-sm" onclick="show('signup')">Cadastrar Meu Bar</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"><div class="hg1"></div><div class="hg2"></div><div class="hgrid"></div></div>
+  <div class="hc ain">
+    <div class="htag">Plataforma de bares · Brasília</div>
+    <h1 class="htitle">Conecte seu bar a<br>quem quer <span>sair agora</span></h1>
+    <p class="hsub">O WYG mostra bares em tempo real para quem está decidindo onde ir. Lotação ao vivo, sistema de pontos e dados reais dos seus clientes — tudo num painel simples.</p>
+    <div class="hacts">
+      <button class="btn btn-p btn-lg" onclick="show('signup')">Cadastrar Meu Bar</button>
+      <a href="#s-how" class="btn btn-o btn-lg">Entender o produto</a>
+    </div>
+    <p class="hfree">Grátis pelos primeiros 3 meses. Sem cartão.</p>
+  </div>
+  <div class="phone-wrap ain d2">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div style="text-align:center;margin-bottom:11px;"><div style="font-size:8px;opacity:.32;font-family:var(--ff);margin-bottom:4px;">Where You Going?</div><div style="font-size:9px;color:var(--slate);">Bombando agora</div></div>
+      <div style="background:rgba(255,255,255,.05);border-radius:9px;padding:9px;margin-bottom:5px;border:1px solid rgba(255,255,255,.07);"><div style="display:flex;align-items:center;gap:6px;"><div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#9c19a3,#3e2c7d);flex-shrink:0;"></div><div style="flex:1"><div style="font-size:9.5px;font-weight:600;">Neon Bar</div><div style="font-size:7.5px;color:var(--slate);">Asa Sul · R$30–50</div></div><div style="display:flex;gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--hot);box-shadow:0 0 5px var(--hot)"></div><div style="width:6px;height:6px;border-radius:50%;background:var(--hot)"></div><div style="width:6px;height:6px;border-radius:50%;background:var(--hot)"></div></div></div></div>
+      <div style="background:rgba(255,255,255,.05);border-radius:9px;padding:9px;margin-bottom:5px;border:1px solid rgba(255,255,255,.07);"><div style="display:flex;align-items:center;gap:6px;"><div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#125d7a,#0b3c5d);flex-shrink:0;"></div><div style="flex:1"><div style="font-size:9.5px;font-weight:600;">Sky Lounge</div><div style="font-size:7.5px;color:var(--slate);">Lago Norte · R$50+</div></div><div style="display:flex;gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--warm);box-shadow:0 0 5px var(--warm)"></div><div style="width:6px;height:6px;border-radius:50%;background:var(--warm)"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.1)"></div></div></div></div>
+      <div style="background:rgba(255,255,255,.05);border-radius:9px;padding:9px;border:1px solid rgba(255,255,255,.07);"><div style="display:flex;align-items:center;gap:6px;"><div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#0b3c5d,#125d7a);flex-shrink:0;"></div><div style="flex:1"><div style="font-size:9.5px;font-weight:600;">Craft House</div><div style="font-size:7.5px;color:var(--slate);">Sudoeste · R$20–40</div></div><div style="display:flex;gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--cold);box-shadow:0 0 5px var(--cold)"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.1)"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.1)"></div></div></div></div>
+      <div class="pbar"><span>🏠</span><span>🔍</span><span style="color:var(--hi)">📍</span><span>🎁</span><span>👤</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="s-how" style="border-top:1px solid var(--gb);">
+  <div class="slabel">O produto</div>
+  <h2 class="stitle">O que é o WYG?</h2>
+  <p class="ssub">Um app que ajuda pessoas a decidirem onde sair em Brasília — com base em localização, lotação ao vivo e preferências. Para o bar, isso significa aparecer para quem está ativo e pronto para sair agora.</p>
+  <div class="steps">
+    <div class="step"><div class="snum">01</div><div class="sico">📍</div><h3 class="stept">Visibilidade real</h3><p class="stepts">Seu bar aparece no mapa e na lista de quem está próximo, com foto, lotação ao vivo e informações atualizadas.</p></div>
+    <div class="step"><div class="snum">02</div><div class="sico">🌡️</div><h3 class="stept">Lotação ao vivo</h3><p class="stepts">Usuários votam na escala frio→quente enquanto estão no local. Você aparece em destaque quando está bombando.</p></div>
+    <div class="step"><div class="snum">03</div><div class="sico">📊</div><h3 class="stept">Dados dos clientes</h3><p class="stepts">Painel com horários de pico, faixa etária, ticket médio e comportamento — informações que seu caixa não te dá.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="s-valor" style="background:rgba(11,60,93,.07);">
+  <div class="slabel">Por que cadastrar</div>
+  <h2 class="stitle">O que o WYG entrega<br>para o seu bar</h2>
+  <div class="vp-grid">
+    <div class="vp"><div class="vp-ico">📊</div><h3 class="vp-t">Painel de gestão completo</h3><p class="vp-s">Acesse dados reais dos seus clientes: horário de pico, bairros de origem, ticket médio e histórico de consumo. Tudo em tempo real.</p></div>
+    <div class="vp"><div class="vp-ico">🎁</div><h3 class="vp-t">Sistema de fidelização</h3><p class="vp-s">Crie benefícios personalizados — drinks, entradas, descontos — e deixe o cliente acumular e resgatar pelo app. Você define as regras.</p></div>
+    <div class="vp"><div class="vp-ico">📣</div><h3 class="vp-t">Visibilidade para quem decide</h3><p class="vp-s">O WYG é usado por quem está escolhendo onde ir. Seu bar aparece para o público certo, no momento certo.</p></div>
+    <div class="vp"><div class="vp-ico">⭐</div><h3 class="vp-t">Avaliações verificadas</h3><p class="vp-s">Só avalia quem foi ao local — verificado por GPS. Sua nota reflete experiências reais, não bots ou reviews falsos.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="s-pontos">
+  <div class="pts-grid">
+    <div>
+      <div class="slabel">Sistema de pontos</div>
+      <h2 class="stitle">Clientes que gastam<br>mais, voltam mais</h2>
+      <p class="ssub">O bar registra o consumo pelo CPF. O cliente acumula pontos e troca por benefícios que você criou. Quanto mais ele consome, mais rápido ele volta.</p>
+      <div style="display:flex;flex-direction:column;gap:15px;margin-top:28px;">
+        <div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:36px;height:36px;border-radius:10px;background:rgba(156,25,163,.11);border:1px solid rgba(156,25,163,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">💳</div><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Registro simples</div><p style="font-size:12px;color:var(--slate);line-height:1.6;">Você insere o CPF após o pagamento. Os pontos são creditados automaticamente no app do cliente.</p></div></div>
+        <div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:36px;height:36px;border-radius:10px;background:rgba(156,25,163,.11);border:1px solid rgba(156,25,163,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🔑</div><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Resgate por código</div><p style="font-size:12px;color:var(--slate);line-height:1.6;">O cliente gera um código no app e você valida no painel. Pontos debitados na hora.</p></div></div>
+        <div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:36px;height:36px;border-radius:10px;background:rgba(156,25,163,.11);border:1px solid rgba(156,25,163,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">📈</div><div><div style="font-size:13px;font-weight:700;margin-bottom:2px;">Incentivo ao ticket maior</div><p style="font-size:12px;color:var(--slate);line-height:1.6;">Quem gasta mais acumula pontos mais rápido — incentivo natural para aumentar o consumo.</p></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="gc" style="padding:24px;">
+        <div style="font-family:var(--ff);font-size:14px;font-weight:700;margin-bottom:16px;">Conversão por faixa de consumo</div>
+        <div class="ptsr">
+          <div class="ptsr-row"><span>R$ 0 – 50</span><strong>5% em pontos</strong></div>
+          <div class="ptsr-row"><span>R$ 50 – 100</span><strong>7,5% em pontos</strong></div>
+          <div class="ptsr-row"><span>R$ 100 – 300</span><strong>10% em pontos</strong></div>
+          <div class="ptsr-row hi"><span>Acima de R$ 300</span><strong>12% em pontos</strong></div>
+        </div>
+        <div style="margin-top:13px;padding:12px;background:rgba(255,255,255,.03);border-radius:9px;font-size:12px;color:var(--slate);line-height:1.62;border:1px solid var(--gb);">
+          <strong style="color:#fff;">Exemplo:</strong> cliente consumiu R$120 → 12.000 pontos (10%). Na próxima visita troca por um drink e volta para gastar mais.
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:16px 18px;background:rgba(156,25,163,.09);border:1px solid rgba(156,25,163,.22);border-radius:13px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Comissão WYG</div>
+        <div style="font-size:12px;color:var(--slate);line-height:1.62;">Entre 4% e 12% sobre o consumo registrado via CPF — negociado previamente. <strong style="color:#fff;">Nos primeiros 3 meses, é zero.</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="s-free" style="background:rgba(11,60,93,.07);border-top:1px solid var(--gb);">
+  <div style="max-width:700px;margin:0 auto;text-align:center;">
+    <div class="slabel" style="text-align:center;">Sem risco</div>
+    <h2 class="stitle" style="text-align:center;">3 meses grátis para começar</h2>
+    <p class="ssub" style="text-align:center;margin:0 auto 32px;max-width:440px;">Cadastre seu bar, configure o painel e comece a aparecer para os usuários. A comissão só entra após o período de cortesia.</p>
+    <div style="display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;">
+      <button class="btn btn-o btn-lg" onclick="show('login')">Já tenho conta</button>
+      <button class="btn btn-p btn-lg" onclick="show('signup')">Cadastrar gratuitamente →</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:13px;text-align:left;">
+      <div style="padding:16px;background:var(--glass);border-radius:12px;border:1px solid var(--gb);"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">Meses 1 – 3</div><div style="font-size:12px;color:var(--slate);line-height:1.6;">Grátis. Cadastre, configure e apareça no app.</div></div>
+      <div style="padding:16px;background:var(--glass);border-radius:12px;border:1px solid var(--gb);"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">A partir do mês 4</div><div style="font-size:12px;color:var(--slate);line-height:1.6;">Comissão de 4–12% sobre consumo via CPF, negociada previamente.</div></div>
+      <div style="padding:16px;background:var(--glass);border-radius:12px;border:1px solid var(--gb);"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">Sempre incluso</div><div style="font-size:12px;color:var(--slate);line-height:1.6;">Painel, pontos, avaliações e suporte.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" id="s-footer">
+  <div class="fg-grid">
+    <div>
+      <a class="nlogo" onclick="show('landing')" style="display:inline-flex;margin-bottom:13px;text-decoration:none;">
+        <img src="wyglogo_transparente.svg" alt="WYG" height="30" onerror="this.style.display='none'">
+        <span style="font-family:var(--ff);font-weight:800;font-size:17px;margin-left:9px;">WYG</span>
+      </a>
+      <p style="font-size:13px;color:var(--slate);line-height:1.7;max-width:240px;">Where You Going? Conectando quem quer sair aos melhores bares de Brasília.</p>
+    </div>
+    <div class="fc"><h4>Produto</h4><a href="#s-how">O que é o WYG</a><a href="#s-pontos">Sistema de pontos</a><a href="#s-valor">Para o bar</a></div>
+    <div class="fc"><h4>Parceiros</h4><a onclick="show('signup')">Cadastrar meu bar</a><a onclick="show('login')">Área do parceiro</a><a>Política de comissão</a></div>
+    <div class="fc"><h4>Contato</h4><a>contato@wyg.com.br</a><a>00.000.000/0005-00</a><a>Termos de Uso</a><a>Privacidade (LGPD)</a></div>
+  </div>
+  <div class="fbot"><span>© 2026 WYG – Where You Going? Todos os direitos reservados.</span><span>Brasília, DF</span></div>
+</footer>
+</div>
+
+<!-- ════════════════════════════════
+     AUTH
+════════════════════════════════ -->
+<div id="pg-auth" class="pg">
+<div class="auth-wrap">
+  <div class="auth-l">
+    <div class="auth-l-bg"></div>
+    <a onclick="show('landing')" style="position:relative;z-index:1;margin-bottom:auto;display:inline-flex;align-items:center;gap:9px;cursor:pointer;text-decoration:none;">
+      <img src="wyglogo_transparente.svg" alt="WYG" height="26" onerror="this.style.display='none'">
+      <span style="font-family:var(--ff);font-weight:800;font-size:17px;">WYG</span>
+    </a>
+    <div class="auth-lc">
+      <h2 class="auth-lt">A noite mais<br>inteligente<br>da cidade</h2>
+      <p class="auth-ls">Gerencie seu bar, acesse dados reais dos seus clientes e fidelize com o sistema de pontos.</p>
+      <div style="margin-top:24px;display:flex;gap:8px;align-items:center;">
+        <div style="display:flex;gap:5px;"><div style="width:12px;height:12px;border-radius:50%;background:var(--cold);box-shadow:0 0 8px var(--cold)"></div><div style="width:12px;height:12px;border-radius:50%;background:var(--warm);box-shadow:0 0 8px var(--warm)"></div><div style="width:12px;height:12px;border-radius:50%;background:var(--hot);box-shadow:0 0 8px var(--hot)"></div></div>
+        <span style="font-size:12px;color:rgba(255,255,255,.42);">Escala frio → quente</span>
+      </div>
+    </div>
+  </div>
+  <div class="auth-r">
+    <div class="auth-form" id="f-login">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px;cursor:pointer;" onclick="show('landing')">
+        <img src="wyglogo_transparente.svg" alt="WYG" height="22" onerror="this.style.display='none'">
+        <span style="font-family:var(--ff);font-weight:800;font-size:16px;">WYG</span>
+      </div>
+      <h2 class="auth-ft">Bem-vindo de volta</h2>
+      <p class="auth-fs">Entre com sua conta de parceiro WYG</p>
+      <button class="btn-goog" onclick="mockGlogin()">
+        <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Continuar com Google
+      </button>
+      <div class="divider"><span>ou entre com e-mail</span></div>
+      <div class="fg"><label class="fl">E-mail</label><input type="email" class="fi" placeholder="seu@bar.com.br" id="li-email"></div>
+      <div class="fg"><label class="fl">Senha</label><input type="password" class="fi" placeholder="••••••••" id="li-pw"></div>
+      <button class="btn btn-p btn-full" onclick="mockLogin()">Entrar →</button>
+      <div class="asw">Não tem conta? <a onclick="show('signup')">Cadastrar meu bar</a></div>
+      <div style="margin-top:14px;padding-top:13px;border-top:1px solid var(--gb);text-align:center;font-size:12px;color:var(--slate);">Equipe WYG? <a style="color:var(--hi);cursor:pointer;font-weight:600;" onclick="show('wyg-admin')">Acesso administrativo →</a></div>
+    </div>
+    <div class="auth-form" id="f-signup" style="display:none;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px;cursor:pointer;" onclick="show('landing')">
+        <img src="wyglogo_transparente.svg" alt="WYG" height="22" onerror="this.style.display='none'">
+        <span style="font-family:var(--ff);font-weight:800;font-size:16px;">WYG</span>
+      </div>
+      <h2 class="auth-ft">Cadastre seu bar</h2>
+      <p class="auth-fs">Grátis pelos primeiros 3 meses. Sem cartão de crédito.</p>
+      <div class="fg"><label class="fl">Nome do bar</label><input type="text" class="fi" placeholder="Ex: Neon Bar"></div>
+      <div class="fg"><label class="fl">E-mail</label><input type="email" class="fi" placeholder="seu@bar.com.br"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="fg"><label class="fl">WhatsApp</label><input type="tel" class="fi" placeholder="(61) 99999-9999"></div>
+        <div class="fg"><label class="fl">CNPJ</label><input type="text" class="fi" placeholder="00.000.000/0001-00"></div>
+      </div>
+      <div class="fg"><label class="fl">Senha</label><input type="password" class="fi" placeholder="Mínimo 8 caracteres"></div>
+      <button class="btn btn-p btn-full" onclick="show('bar-admin')">Criar conta e acessar painel →</button>
+      <div class="auth-free-note">Grátis pelos primeiros 3 meses. Comissão de 4–12% a partir do 4º mês.</div>
+      <div class="asw">Já tem conta? <a onclick="show('login')">Fazer login</a></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     BAR ADMIN
+════════════════════════════════ -->
+<div id="pg-bar-admin" class="pg">
+<div class="dash">
+  <div class="sb-overlay" id="sb-overlay" onclick="closeSb()"></div>
+  <aside class="sb" id="main-sb">
+    <button class="sb-close" onclick="closeSb()">✕</button>
+    <div class="sb-logo" onclick="show('landing')">
+      <img src="wyglogo_transparente.svg" alt="WYG" height="22" style="width:auto;" onerror="this.style.display='none'">
+      <span class="sb-lt">Parceiro</span>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Menu</div>
+      <div class="sbi on" id="b-sbi-overview" onclick="setTab('b','overview');closeSb()"><span class="ic">▣</span>Visão Geral</div>
+      <div class="sbi" id="b-sbi-pontos" onclick="setTab('b','pontos');closeSb()"><span class="ic">◈</span>Registrar Pontos</div>
+      <div class="sbi" id="b-sbi-beneficios" onclick="setTab('b','beneficios');closeSb()"><span class="ic">◆</span>Benefícios</div>
+      <div class="sbi" id="b-sbi-relatorios" onclick="setTab('b','relatorios');closeSb()"><span class="ic">◉</span>Relatórios</div>
+      <div class="sbi" id="b-sbi-assistente" onclick="setTab('b','assistente');closeSb()"><span class="ic">✦</span>Assistente IA</div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Conta</div>
+      <div class="sbi" id="b-sbi-perfil" onclick="setTab('b','perfil');closeSb()"><span class="ic">◍</span>Perfil do Bar</div>
+    </div>
+    <div class="sb-ft">
+      <div class="sbi" style="cursor:default;border:none;">
+        <div class="av" style="width:28px;height:28px;font-size:10px;">NB</div>
+        <div><div style="font-size:12px;">Neon Bar</div><div style="font-size:10px;color:var(--ok);">● Cortesia – Mês 1</div></div>
+      </div>
+      <div class="sbi" onclick="show('landing')"><span class="ic">→</span>Sair</div>
+    </div>
+  </aside>
+  <main class="dmain">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;">
+      <button class="mob-nav-btn" onclick="openSb()">☰ Menu</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div id="b-tab-overview" class="tab-c on">
+      <div class="dhead">
+        <div><h1 class="dtitle">Visão Geral</h1><p class="dsub">Neon Bar · Asa Sul · Aberto agora</p></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="fi" style="width:auto;padding:8px 12px;font-size:12px;"><option>Últimos 30 dias</option><option>7 dias</option></select>
+          <button class="btn btn-p btn-sm" onclick="toast('Exportado!','ok')">Exportar</button>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sc"><div class="slb2">Pontos creditados</div><div class="sv" style="color:#d966e0;" id="stat-pts">284.500</div><div class="schange up">+18% este mês</div></div>
+        <div class="sc"><div class="slb2">Benefícios resgatados</div><div class="sv" id="stat-res">47</div><div class="schange up">+12 resgates</div></div>
+        <div class="sc"><div class="slb2">Avaliações</div><div class="sv">128</div><div class="schange n">Nota 4.3/5</div></div>
+        <div class="sc"><div class="slb2">Consumo registrado</div><div class="sv" id="stat-cons">R$12.4k</div><div class="schange dn">-3% vs anterior</div></div>
+      </div>
+      <div class="g2" style="margin-bottom:14px;">
+        <div class="pc"><div class="pct">Consumo via CPF</div><div class="pcs">Valor por semana (R$)</div><canvas id="chart-consumo" height="160"></canvas></div>
+        <div class="pc">
+          <div class="pct" style="margin-bottom:14px;">Últimas transações</div>
+          <div id="tx-list">
+            <div class="txrow"><div class="txic">CPF</div><div class="txin"><div class="txin-t">***.456.789-**</div><div class="txin-s">Hoje 19:34 · R$120,00</div></div><div style="font-size:12px;font-weight:700;color:#d966e0;">+12.000</div></div>
+            <div class="txrow"><div class="txic">CPF</div><div class="txin"><div class="txin-t">***.123.456-**</div><div class="txin-s">Hoje 21:12 · R$45,00</div></div><div style="font-size:12px;font-weight:700;color:#d966e0;">+2.250</div></div>
+            <div class="txrow"><div class="txic" style="background:rgba(230,57,70,.12);color:var(--hot);">RES</div><div class="txin"><div class="txin-t">***.789.012-**</div><div class="txin-s">Hoje 22:05 · Resgate</div></div><div style="font-size:12px;font-weight:700;color:var(--hot);">-20.000</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pc">
+        <div class="pct" style="margin-bottom:4px;">Avaliações recentes</div>
+        <div class="pcs">Verificadas por check-in GPS</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:12px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.032);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><div style="display:flex;align-items:center;gap:6px;"><div class="av" style="width:22px;height:22px;font-size:9px;">L</div><span style="font-size:12px;font-weight:600;">L. Valente</span></div><span style="font-size:11px;">★ 5.0 <span style="color:var(--slate);font-size:10px;">2h atrás</span></span></div><p style="font-size:12px;color:var(--slate);line-height:1.5;">Ambiente incrível, música perfeita. Virei frequentador fixo!</p></div>
+          <div style="padding:12px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.032);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><div style="display:flex;align-items:center;gap:6px;"><div class="av" style="width:22px;height:22px;font-size:9px;">C</div><span style="font-size:12px;font-weight:600;">C. Attie</span></div><span style="font-size:11px;">★ 4.0 <span style="color:var(--slate);font-size:10px;">5h atrás</span></span></div><p style="font-size:12px;color:var(--slate);line-height:1.5;">Drinks elaborados, ótimo atendimento. Recomendo!</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PONTOS (optimized for mobile) -->
+    <div id="b-tab-pontos" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Registrar Pontos</h1><p class="dsub">Credite e valide pelo celular</p></div></div>
+      <div class="points-mobile-full">
+        <div class="pc">
+          <h3 style="font-family:var(--ff);font-size:15px;font-weight:700;margin-bottom:15px;">Registrar consumo</h3>
+          <div class="fg"><label class="fl">CPF do cliente</label><input type="text" class="fi" placeholder="000.000.000-00" id="cpf-in" oninput="fmtCPF(this)" maxlength="14" inputmode="numeric"></div>
+          <div class="fg"><label class="fl">Valor consumado (R$)</label><input type="number" class="fi" placeholder="0,00" id="val-in" oninput="calcPts()" min="0" step="0.01" inputmode="decimal"></div>
+          <div class="pts-prev" id="pts-prev">
+            <div style="font-size:11px;color:var(--slate);">Pontos a creditar</div>
+            <div style="font-family:var(--ff);font-size:26px;font-weight:800;color:#d966e0;" id="pts-val"></div>
+            <div style="font-size:11px;color:var(--slate);margin-top:2px;" id="taxa-val"></div>
+          </div>
+          <button class="btn btn-p btn-full" onclick="creditPts()" style="font-size:16px;padding:14px;">Creditar Pontos →</button>
+        </div>
+        <div class="pc">
+          <h3 style="font-family:var(--ff);font-size:15px;font-weight:700;margin-bottom:12px;">Validar resgate</h3>
+          <p style="font-size:12px;color:var(--slate);margin-bottom:14px;line-height:1.62;">O cliente mostra o código gerado no app. Insira aqui para confirmar.</p>
+          <div class="fg"><label class="fl">Código de resgate</label><input type="text" class="fi" placeholder="WYG-XXXXXX" id="code-in" style="font-family:monospace;letter-spacing:1.5px;font-size:16px;" oninput="this.value=this.value.toUpperCase()" autocapitalize="characters"></div>
+          <button class="btn btn-ok btn-full" onclick="validateCode()" style="font-size:15px;padding:13px;">Validar Código</button>
+          <div id="code-result" style="display:none;margin-top:12px;padding:13px;background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.22);border-radius:10px;font-size:13px;"></div>
+        </div>
+        <div class="pc">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div class="pct">Histórico</div><button class="btn btn-s btn-sm" onclick="toast('CSV exportado!','ok')">CSV</button></div>
+          <div id="tx-hist">
+            <div class="txrow"><div class="txic">CPF</div><div class="txin"><div class="txin-t">***.456.789-**</div><div class="txin-s">18/03 · R$120</div></div><span class="bdg bdg-ok">+12.000</span></div>
+            <div class="txrow"><div class="txic">CPF</div><div class="txin"><div class="txin-t">***.123.456-**</div><div class="txin-s">18/03 · R$45</div></div><span class="bdg bdg-ok">+2.250</span></div>
+            <div class="txrow"><div class="txic" style="background:rgba(230,57,70,.12);color:var(--hot);">RES</div><div class="txin"><div class="txin-t">***.789.012-**</div><div class="txin-s">17/03 · Resgate</div></div><span class="bdg bdg-err">-20.000</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENEFICIOS -->
+    <div id="b-tab-beneficios" class="tab-c">
+      <div class="dhead">
+        <div><h1 class="dtitle">Benefícios</h1><p class="dsub">Itens para troca de pontos</p></div>
+        <button class="btn btn-p btn-sm" onclick="document.getElementById('mo-benefit').classList.add('show')">+ Novo</button>
+      </div>
+      <div id="benefit-list">
+        <div class="bc"><div class="bico">🍺</div><div style="flex:1"><div class="bn">Chopp artesanal 300ml</div><div class="bpts">17.000 pontos</div><div class="bst">Estoque: 50 · Válido até 30/04</div></div><span class="bdg bdg-ok" style="margin-right:7px;">Ativo</span><button class="btn btn-err btn-sm" onclick="removeBenefit(this)">Remover</button></div>
+        <div class="bc"><div class="bico">🍟</div><div style="flex:1"><div class="bn">Porção de batata frita</div><div class="bpts">12.000 pontos</div><div class="bst">Estoque: 30 · Válido até 30/04</div></div><span class="bdg bdg-ok" style="margin-right:7px;">Ativo</span><button class="btn btn-err btn-sm" onclick="removeBenefit(this)">Remover</button></div>
+        <div class="bc"><div class="bico">🎟️</div><div style="flex:1"><div class="bn">Entrada gratuita</div><div class="bpts">25.000 pontos</div><div class="bst">Estoque: 5 · Válido até 01/04</div></div><span class="bdg bdg-warn" style="margin-right:7px;">Esgotando</span><button class="btn btn-err btn-sm" onclick="removeBenefit(this)">Remover</button></div>
+      </div>
+      <div style="margin-top:14px;padding:13px;background:rgba(156,25,163,.06);border:1px solid rgba(156,25,163,.15);border-radius:11px;font-size:12px;color:var(--slate);line-height:1.6;">
+        <strong style="color:#fff;">Dica:</strong> ordene do menor ao maior custo. Benefícios acessíveis geram mais engajamento e trazem clientes de volta mais rápido.
+      </div>
+    </div>
+
+    <!-- RELATORIOS -->
+    <div id="b-tab-relatorios" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Relatórios</h1><p class="dsub">Dados dos seus clientes</p></div><button class="btn btn-p btn-sm" onclick="toast('Exportado!','ok')">Exportar</button></div>
+      <div class="g3" style="margin-bottom:14px;">
+        <div class="pc"><div class="pct">Horário de pico</div><div class="pcs">Visitas por hora</div><canvas id="chart-hours" height="130"></canvas></div>
+        <div class="pc"><div class="pct">Faixa etária</div><div class="pcs">Distribuição</div><div class="chart-bar-wrap" style="margin-top:10px;"><div class="cbar"><span class="cbar-lbl">18–22</span><div class="cbar-bg"><div class="cbar-fill" style="width:28%"></div></div><span class="cbar-val">28%</span></div><div class="cbar"><span class="cbar-lbl">23–28</span><div class="cbar-bg"><div class="cbar-fill" style="width:42%"></div></div><span class="cbar-val">42%</span></div><div class="cbar"><span class="cbar-lbl">29–35</span><div class="cbar-bg"><div class="cbar-fill" style="width:22%"></div></div><span class="cbar-val">22%</span></div><div class="cbar"><span class="cbar-lbl">36+</span><div class="cbar-bg"><div class="cbar-fill" style="width:8%"></div></div><span class="cbar-val">8%</span></div></div></div>
+        <div class="pc"><div class="pct">Ticket médio</div><div class="pcs">Via CPF</div><div style="font-family:var(--ff);font-size:30px;font-weight:800;color:#d966e0;margin:10px 0 4px;">R$87,40</div><div style="font-size:11px;color:var(--ok);">+12% vs anterior</div><div class="divl"></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--slate);"><span>Menor</span><span style="color:#fff;">R$18</span></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--slate);margin-top:4px;"><span>Maior</span><span style="color:#fff;">R$420</span></div></div>
+      </div>
+      <div class="pc"><div class="pct" style="margin-bottom:4px;">Bairros de origem</div><div class="pcs">Top bairros</div><div class="chart-bar-wrap" style="margin-top:12px;"><div class="cbar"><span class="cbar-lbl">Asa Sul</span><div class="cbar-bg"><div class="cbar-fill" style="width:68%"></div></div><span class="cbar-val">68%</span></div><div class="cbar"><span class="cbar-lbl">Sudoeste</span><div class="cbar-bg"><div class="cbar-fill" style="width:52%"></div></div><span class="cbar-val">52%</span></div><div class="cbar"><span class="cbar-lbl">Lago Sul</span><div class="cbar-bg"><div class="cbar-fill" style="width:34%"></div></div><span class="cbar-val">34%</span></div><div class="cbar"><span class="cbar-lbl">Noroeste</span><div class="cbar-bg"><div class="cbar-fill" style="width:28%"></div></div><span class="cbar-val">28%</span></div><div class="cbar"><span class="cbar-lbl">Asa Norte</span><div class="cbar-bg"><div class="cbar-fill" style="width:22%"></div></div><span class="cbar-val">22%</span></div></div></div>
+    </div>
+
+    <!-- ASSISTENTE -->
+    <div id="b-tab-assistente" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Assistente IA</h1><p class="dsub">Insights e dúvidas sobre o negócio</p></div></div>
+      <div class="g2">
+        <div class="aichat" id="bar-chat"><div class="aich"><div class="aiav">IA</div><div><div style="font-size:13px;font-weight:700;">Assistente WYG</div><div style="font-size:10px;color:var(--ok);">Online</div></div></div><div class="aicm" id="bar-chat-msgs"><div class="aim bot">Olá! Posso te ajudar com dúvidas sobre pontos, benefícios, dados do painel ou qualquer coisa sobre a plataforma. O que precisa?</div></div><div class="aicf"><input type="text" id="bar-chat-input" placeholder="Pergunte algo..." onkeydown="if(event.key==='Enter')sendBarChat()"><button onclick="sendBarChat()">→</button></div></div>
+        <div class="pc" style="height:fit-content;"><div class="pct" style="margin-bottom:3px;">Perguntas frequentes</div><div class="pcs">Clique para enviar</div><div style="display:flex;flex-direction:column;gap:7px;margin-top:10px;">
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;text-align:left;" onclick="quickBarQ('Como criar um benefício novo?')">Como criar um benefício?</button>
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;text-align:left;" onclick="quickBarQ('Como interpretar meu ticket médio?')">Como interpretar o ticket médio?</button>
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;text-align:left;" onclick="quickBarQ('Como aumentar a taxa de resgate de pontos?')">Como aumentar o resgate?</button>
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;text-align:left;" onclick="quickBarQ('O que é a escala frio/quente e como funciona?')">O que é a escala frio/quente?</button>
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;text-align:left;" onclick="quickBarQ('Como funciona a comissão da WYG?')">Como funciona a comissão?</button>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div id="b-tab-perfil" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Perfil do Bar</h1><p class="dsub">Informações exibidas no app WYG</p></div><button class="btn btn-p btn-sm" onclick="toast('Perfil salvo!','ok')">Salvar</button></div>
+      <div class="g2">
+        <div class="pc">
+          <div class="pct" style="margin-bottom:15px;">Informações básicas</div>
+          <div class="fg"><label class="fl">Nome</label><input class="fi" type="text" value="Neon Bar"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="fg"><label class="fl">Tipo</label><select class="fi"><option>Bar</option><option>Cervejaria</option><option>Nightclub</option><option>Rooftop</option><option>Lounge</option></select></div>
+            <div class="fg"><label class="fl">Faixa de preço</label><select class="fi"><option>R$0–30</option><option selected>R$30–50</option><option>R$50–80</option><option>R$80+</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">Endereço</label><input class="fi" type="text" value="CLN 406, Bloco B – Asa Sul"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="fg"><label class="fl">Telefone</label><input class="fi" type="tel" value="(61) 3345-6789"></div>
+            <div class="fg"><label class="fl">Instagram</label><input class="fi" type="text" value="@neonbar_bsb"></div>
+          </div>
+          <div class="fg"><label class="fl">Horários</label><input class="fi" type="text" value="Ter–Qui 18h–01h · Sex–Sáb 18h–03h"></div>
+          <div class="fg"><label class="fl">Cobrança de entrada</label><div style="display:flex;align-items:center;gap:10px;margin-top:6px;"><button class="tog on" onclick="this.classList.toggle('on')"></button><span style="font-size:13px;color:var(--slate);">Cobro entrada em alguns dias</span></div></div>
+        </div>
+        <div class="pc">
+          <div class="pct" style="margin-bottom:4px;">Fotos do bar</div>
+          <p style="font-size:12px;color:var(--slate);margin-bottom:12px;line-height:1.6;">Até 5 fotos. Aparecem no app ao clicar no seu bar.</p>
+          <div class="photo-grid" id="photo-grid"></div>
+          <input type="file" id="file-input" accept="image/*" multiple onchange="handleFileUpload(this)">
+          <div style="margin-top:12px;padding:11px;background:var(--glass);border-radius:9px;font-size:11px;color:var(--slate);line-height:1.6;border:1px solid var(--gb);">Formatos: JPG, PNG, WEBP · Máx. 5 MB por foto</div>
+          <div class="divl"></div>
+          <div class="pct" style="margin-bottom:10px;">Estilo musical</div>
+          <div style="display:flex;flex-wrap:wrap;" id="chips-music">
+            <span class="chip on" onclick="this.classList.toggle('on')">Electronic</span><span class="chip on" onclick="this.classList.toggle('on')">Indie</span><span class="chip" onclick="this.classList.toggle('on')">Sertanejo</span><span class="chip" onclick="this.classList.toggle('on')">Funk</span><span class="chip on" onclick="this.classList.toggle('on')">MPB</span><span class="chip" onclick="this.classList.toggle('on')">Rock</span><span class="chip" onclick="this.classList.toggle('on')">Jazz</span>
+          </div>
+          <div class="pct" style="margin-bottom:10px;margin-top:14px;">Ambiente</div>
+          <div style="display:flex;flex-wrap:wrap;">
+            <span class="chip on" onclick="this.classList.toggle('on')">Lounge</span><span class="chip" onclick="this.classList.toggle('on')">Ao ar livre</span><span class="chip on" onclick="this.classList.toggle('on')">Happy Hour</span><span class="chip" onclick="this.classList.toggle('on')">Cobertura</span><span class="chip" onclick="this.classList.toggle('on')">Pista</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     WYG ADMIN
+════════════════════════════════ -->
+<div id="pg-wyg-admin" class="pg">
+<div class="dash">
+  <div class="sb-overlay" id="wyg-sb-overlay" onclick="closeWygSb()"></div>
+  <aside class="sb" id="wyg-sb">
+    <button class="sb-close" onclick="closeWygSb()">✕</button>
+    <div class="sb-logo" onclick="show('landing')">
+      <img src="wyglogo_transparente.svg" alt="WYG" height="22" style="width:auto;" onerror="this.style.display='none'">
+      <span class="sb-lt" style="color:#d966e0;">Admin</span>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Dashboard</div>
+      <div class="sbi on" id="w-sbi-overview" onclick="setTab('w','overview');closeWygSb()"><span class="ic">▣</span>Visão Geral</div>
+      <div class="sbi" id="w-sbi-bares" onclick="setTab('w','bares');closeWygSb()"><span class="ic">◈</span>Bares</div>
+      <div class="sbi" id="w-sbi-usuarios" onclick="setTab('w','usuarios');closeWygSb()"><span class="ic">◆</span>Usuários</div>
+      <div class="sbi" id="w-sbi-faturamento" onclick="setTab('w','faturamento');closeWygSb()"><span class="ic">◉</span>Faturamento</div>
+      <div class="sbi" id="w-sbi-ads" onclick="setTab('w','ads');closeWygSb()"><span class="ic">◍</span>Anúncios</div>
+      <div class="sbi" id="w-sbi-assistente" onclick="setTab('w','assistente');closeWygSb()"><span class="ic">✦</span>Assistente IA</div>
+    </div>
+    <div class="sb-ft">
+      <div class="sbi" style="cursor:default;border:none;"><div class="av" style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#d966e0,var(--hi));">W</div><div><div style="font-size:12px;">Equipe WYG</div><div style="font-size:10px;color:#d966e0;">Admin</div></div></div>
+      <div class="sbi" onclick="show('landing')"><span class="ic">→</span>Sair</div>
+    </div>
+  </aside>
+  <main class="dmain">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;">
+      <button class="mob-nav-btn" onclick="openWygSb()">☰ Menu</button>
+    </div>
+
+    <!-- WYG OVERVIEW -->
+    <div id="w-tab-overview" class="tab-c on">
+      <div class="dhead"><div><h1 class="dtitle">Dashboard WYG</h1><p class="dsub">Brasília · Março 2026</p></div><div style="display:flex;gap:8px;"><button class="btn btn-s btn-sm" onclick="toast('Exportado!','ok')">Exportar</button><button class="btn btn-p btn-sm" onclick="setTab('w','bares')">Novo bar</button></div></div>
+      <div class="sg">
+        <div class="sc"><div class="slb2">Usuários ativos</div><div class="sv" style="color:var(--ok);" id="w-stat-users">12.847</div><div class="schange up">+2.1k semana</div></div>
+        <div class="sc"><div class="slb2">Bares cadastrados</div><div class="sv" id="w-stat-bars">89</div><div class="schange up">+7 este mês</div></div>
+        <div class="sc"><div class="slb2">Faturamento WYG</div><div class="sv">R$8.2k</div><div class="schange up">+34% anterior</div></div>
+        <div class="sc"><div class="slb2">Consumo total</div><div class="sv">R$68k</div><div class="schange n">Todos os bares</div></div>
+      </div>
+      <div class="g2" style="margin-bottom:14px;">
+        <div class="pc"><div class="pct">Usuários por semana</div><div class="pcs">Crescimento da base</div><canvas id="chart-users" height="160"></canvas></div>
+        <div class="pc"><div class="pct" style="margin-bottom:14px;">Top bares por consumo</div>
+          <div class="bli"><div class="blic">NB</div><div style="flex:1"><div style="font-size:13px;font-weight:600;">Neon Bar</div><div style="font-size:11px;color:var(--slate);">Asa Sul · Cortesia</div></div><div style="font-size:12px;font-weight:700;color:#d966e0;">R$12.4k</div></div>
+          <div class="bli"><div class="blic" style="background:linear-gradient(135deg,#125d7a,#0b3c5d);">SL</div><div style="flex:1"><div style="font-size:13px;font-weight:600;">Sky Lounge</div><div style="font-size:11px;color:var(--slate);">Lago Norte</div></div><div style="font-size:12px;font-weight:700;color:#d966e0;">R$9.8k</div></div>
+          <div class="bli"><div class="blic" style="background:linear-gradient(135deg,#3e2c7d,#125d7a);">CH</div><div style="flex:1"><div style="font-size:13px;font-weight:600;">Craft House</div><div style="font-size:11px;color:var(--slate);">Sudoeste</div></div><div style="font-size:12px;font-weight:700;color:#d966e0;">R$7.1k</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARES -->
+    <div id="w-tab-bares" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Bares</h1><p class="dsub" id="bars-count-sub">89 cadastrados</p></div><button class="btn btn-p btn-sm" onclick="document.getElementById('mo-bar').classList.add('show')">+ Cadastrar bar</button></div>
+      <div class="pc">
+        <div style="display:flex;gap:9px;margin-bottom:14px;flex-wrap:wrap;">
+          <input class="fi" type="text" placeholder="Buscar bar..." style="max-width:240px;" oninput="filterBars(this.value)">
+          <select class="fi" style="width:auto;"><option>Todos</option><option>Ativo</option><option>Pendente</option><option>Suspenso</option></select>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="dt" id="bars-table">
+            <thead><tr><th>Bar</th><th>Bairro</th><th>Comissão</th><th>Consumo</th><th>A cobrar</th><th>Período</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="bars-tbody">
+              <tr data-name="neon bar"><td><div style="font-weight:600;">Neon Bar</div><div style="font-size:10px;color:var(--slate);">BAR-001</div></td><td>Asa Sul</td><td>10%</td><td>R$12.400</td><td style="color:#d966e0;font-weight:700;">R$1.240</td><td><span class="bdg bdg-warn">Cortesia</span></td><td><span class="bdg bdg-ok">Ativo</span></td><td><button class="btn btn-err btn-sm" onclick="removeBar(this)">Remover</button></td></tr>
+              <tr data-name="sky lounge"><td><div style="font-weight:600;">Sky Lounge</div><div style="font-size:10px;color:var(--slate);">BAR-002</div></td><td>Lago Norte</td><td>8%</td><td>R$9.800</td><td style="color:#d966e0;font-weight:700;">R$784</td><td><span class="bdg bdg-ok">Pago</span></td><td><span class="bdg bdg-ok">Ativo</span></td><td><button class="btn btn-err btn-sm" onclick="removeBar(this)">Remover</button></td></tr>
+              <tr data-name="craft house"><td><div style="font-weight:600;">Craft House</div><div style="font-size:10px;color:var(--slate);">BAR-003</div></td><td>Sudoeste</td><td>6%</td><td>R$7.100</td><td style="color:#d966e0;font-weight:700;">R$426</td><td><span class="bdg bdg-warn">Cortesia</span></td><td><span class="bdg bdg-ok">Ativo</span></td><td><button class="btn btn-err btn-sm" onclick="removeBar(this)">Remover</button></td></tr>
+              <tr data-name="the rooftop"><td><div style="font-weight:600;">The Rooftop</div><div style="font-size:10px;color:var(--slate);">BAR-004</div></td><td>Noroeste</td><td>10%</td><td>—</td><td style="color:var(--slate);">—</td><td><span class="bdg bdg-info">Aguardando</span></td><td><span class="bdg bdg-warn">Pendente</span></td><td><button class="btn btn-ok btn-sm" style="margin-right:4px;" onclick="approveBar(this)">Aprovar</button><button class="btn btn-err btn-sm" onclick="removeBar(this)">Recusar</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- USUARIOS -->
+    <div id="w-tab-usuarios" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Usuários</h1><p class="dsub" id="users-count-sub">12.847 ativos</p></div><button class="btn btn-p btn-sm" onclick="document.getElementById('mo-user').classList.add('show')">+ Adicionar</button></div>
+      <div class="g3" style="margin-bottom:14px;">
+        <div class="sc"><div class="slb2">Novos (7d)</div><div class="sv">483</div><div class="schange up">+14%</div></div>
+        <div class="sc"><div class="slb2">Check-ins semana</div><div class="sv">2.840</div><div class="schange up">+8%</div></div>
+        <div class="sc"><div class="slb2">Com CPF</div><div class="sv">67%</div><div class="schange n">Elegíveis p/ pontos</div></div>
+      </div>
+      <div class="pc">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;flex-wrap:wrap;gap:8px;">
+          <div class="pct">Lista de usuários</div>
+          <input class="fi" type="text" placeholder="Buscar..." style="max-width:190px;" oninput="filterUsers(this.value)">
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="dt">
+            <thead><tr><th>Usuário</th><th>Pontos</th><th>Check-ins</th><th>CPF</th><th>Desde</th><th>Status</th><th></th></tr></thead>
+            <tbody id="users-tbody">
+              <tr data-name="leonardo valente"><td><div style="display:flex;align-items:center;gap:7px;"><div class="av" style="width:22px;height:22px;font-size:9px;">LV</div><div><div style="font-size:12px;font-weight:600;">Leonardo Valente</div><div style="font-size:10px;color:var(--slate);">l.valente@email.com</div></div></div></td><td style="color:#d966e0;font-weight:700;">45.200</td><td>28</td><td><span class="bdg bdg-ok">Verificado</span></td><td>Jan/26</td><td><span class="bdg bdg-ok">Ativo</span></td><td><button class="btn btn-err btn-sm" onclick="removeUser(this)">Remover</button></td></tr>
+              <tr data-name="caio attie"><td><div style="display:flex;align-items:center;gap:7px;"><div class="av" style="width:22px;height:22px;font-size:9px;">CA</div><div><div style="font-size:12px;font-weight:600;">Caio Attie</div><div style="font-size:10px;color:var(--slate);">c.attie@email.com</div></div></div></td><td style="color:#d966e0;font-weight:700;">32.100</td><td>19</td><td><span class="bdg bdg-ok">Verificado</span></td><td>Jan/26</td><td><span class="bdg bdg-ok">Ativo</span></td><td><button class="btn btn-err btn-sm" onclick="removeUser(this)">Remover</button></td></tr>
+              <tr data-name="felipe teixeira"><td><div style="display:flex;align-items:center;gap:7px;"><div class="av" style="width:22px;height:22px;font-size:9px;">FT</div><div><div style="font-size:12px;font-weight:600;">Felipe Teixeira</div><div style="font-size:10px;color:var(--slate);">f.teixeira@email.com</div></div></div></td><td style="color:#d966e0;font-weight:700;">18.750</td><td>11</td><td><span class="bdg bdg-warn">Pendente</span></td><td>Fev/26</td><td><span class="bdg bdg-ok">Ativo</span></td><td><button class="btn btn-err btn-sm" onclick="removeUser(this)">Remover</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FATURAMENTO -->
+    <div id="w-tab-faturamento" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Faturamento</h1><p class="dsub">Comissões dos parceiros</p></div><button class="btn btn-p btn-sm" onclick="toast('Exportado!','ok')">Exportar</button></div>
+      <div class="sg">
+        <div class="sc"><div class="slb2">A receber (Março)</div><div class="sv" style="color:var(--ok);">R$8.246</div><div class="schange n">Cobrado dia 01/04</div></div>
+        <div class="sc"><div class="slb2">Recebido (Fev)</div><div class="sv">R$6.148</div><div class="schange up">+34%</div></div>
+        <div class="sc"><div class="slb2">Consumo total</div><div class="sv">R$68k</div><div class="schange n">Todos os parceiros</div></div>
+        <div class="sc"><div class="slb2">Comissão média</div><div class="sv">12,1%</div><div class="schange up">+0.4pp</div></div>
+      </div>
+      <div class="pc">
+        <div class="pct" style="margin-bottom:4px;">Detalhamento — Março 2026</div>
+        <div class="pcs">Bares em cortesia: calculado mas não cobrado.</div>
+        <div style="overflow-x:auto;"><table class="dt" style="margin-top:12px;">
+          <thead><tr><th>Bar</th><th>Consumo</th><th>Comissão</th><th>Valor WYG</th><th>Período</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:600;">Neon Bar</td><td>R$12.400</td><td>10%</td><td style="color:#d966e0;font-weight:700;">R$1.240</td><td><span class="bdg bdg-warn">Cortesia</span></td></tr>
+            <tr><td style="font-weight:600;">Sky Lounge</td><td>R$9.800</td><td>8%</td><td style="color:#d966e0;font-weight:700;">R$784</td><td><span class="bdg bdg-ok">Pago</span></td></tr>
+            <tr><td style="font-weight:600;">Craft House</td><td>R$7.100</td><td>6%</td><td style="color:#d966e0;font-weight:700;">R$426</td><td><span class="bdg bdg-warn">Cortesia</span></td></tr>
+            <tr style="border-top:1.5px solid var(--gb);"><td style="font-weight:800;">Total</td><td style="font-weight:700;">R$68k+</td><td>—</td><td style="color:#d966e0;font-weight:800;font-size:15px;">R$8.246</td><td>—</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ADS -->
+    <div id="w-tab-ads" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Anúncios</h1><p class="dsub">Anúncios dentro do app</p></div><button class="btn btn-p btn-sm" onclick="document.getElementById('mo-ad').classList.add('show')">+ Novo</button></div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;" id="ads-list">
+        <div class="bc" style="border-color:rgba(156,25,163,.28);background:rgba(156,25,163,.05);"><div style="width:50px;height:40px;border-radius:9px;background:linear-gradient(135deg,var(--hi),var(--pur));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🎉</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><span class="bdg bdg-pur">Destaque roxo</span><span class="bdg bdg-ok">Ativo</span></div><div class="bn">Festival de Verão – Neon Bar</div><div class="bst">1–5 Abril · 12.400 impressões</div></div><button class="btn btn-err btn-sm" onclick="this.closest('.bc').remove();toast('Anúncio removido','err')">Remover</button></div>
+        <div class="bc"><div style="width:50px;height:40px;border-radius:9px;background:linear-gradient(135deg,var(--deep),var(--teal));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🍸</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;"><span class="bdg bdg-info">Banner</span><span class="bdg bdg-ok">Ativo</span></div><div class="bn">Happy Hour – Sky Lounge</div><div class="bst">15–31 Março · 8.700 impressões</div></div><button class="btn btn-err btn-sm" onclick="this.closest('.bc').remove();toast('Anúncio removido','err')">Remover</button></div>
+      </div>
+    </div>
+
+    <!-- WYG ASSISTENTE -->
+    <div id="w-tab-assistente" class="tab-c">
+      <div class="dhead"><div><h1 class="dtitle">Assistente IA</h1><p class="dsub">Análises e insights da plataforma</p></div></div>
+      <div class="g2">
+        <div class="aichat" id="wyg-chat"><div class="aich"><div class="aiav" style="background:linear-gradient(135deg,#d966e0,var(--hi));">IA</div><div><div style="font-size:13px;font-weight:700;">Analista WYG</div><div style="font-size:10px;color:#d966e0;">Admin</div></div></div><div class="aicm" id="wyg-chat-msgs"><div class="aim bot">Olá, equipe WYG. Posso ajudar com análises de crescimento, faturamento, comportamento dos usuários e estratégias. O que precisa?</div></div><div class="aicf"><input type="text" id="wyg-chat-input" placeholder="Pergunte sobre a plataforma..." onkeydown="if(event.key==='Enter')sendWygChat()"><button onclick="sendWygChat()">→</button></div></div>
+        <div class="pc" style="height:fit-content;"><div class="pct" style="margin-bottom:3px;">Análises estratégicas</div><div class="pcs">Clique para enviar</div><div style="display:flex;flex-direction:column;gap:7px;margin-top:10px;">
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;" onclick="quickWygQ('Como está nossa velocidade de crescimento?')">Análise de crescimento</button>
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;" onclick="quickWygQ('Quais bares têm mais potencial de receita?')">Potencial de receita</button>
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;" onclick="quickWygQ('Quais estratégias para crescer mais rápido em Brasília?')">Estratégias de crescimento</button>
+          <button class="btn btn-s" style="justify-content:flex-start;font-size:12px;padding:9px 12px;" onclick="quickWygQ('Analise o comportamento dos usuários no app')">Comportamento dos usuários</button>
+        </div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="mov" id="mo-benefit">
+  <div class="mo">
+    <div class="mot">Novo Benefício</div>
+    <div class="fg"><label class="fl">Nome</label><input class="fi" type="text" placeholder="Ex: Chopp artesanal 300ml" id="ben-name"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="fg"><label class="fl">Pontos</label><input class="fi" type="number" placeholder="17000" id="ben-pts" inputmode="numeric"></div>
+      <div class="fg"><label class="fl">Estoque</label><input class="fi" type="number" placeholder="50" id="ben-stock" inputmode="numeric"></div>
+    </div>
+    <div class="fg"><label class="fl">Validade</label><input class="fi" type="date" id="ben-date"></div>
+    <div class="fg"><label class="fl">Ícone</label><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:5px;" id="emoji-picker">
+      <span style="cursor:pointer;font-size:22px;padding:7px 9px;border-radius:8px;background:var(--glass);border:1px solid var(--gb);" onclick="selEmoji(this,'🍺')">🍺</span>
+      <span style="cursor:pointer;font-size:22px;padding:7px 9px;border-radius:8px;background:var(--glass);border:1px solid var(--gb);" onclick="selEmoji(this,'🍟')">🍟</span>
+      <span style="cursor:pointer;font-size:22px;padding:7px 9px;border-radius:8px;background:var(--glass);border:1px solid var(--gb);" onclick="selEmoji(this,'🎟️')">🎟️</span>
+      <span style="cursor:pointer;font-size:22px;padding:7px 9px;border-radius:8px;background:var(--glass);border:1px solid var(--gb);" onclick="selEmoji(this,'🥂')">🥂</span>
+      <span style="cursor:pointer;font-size:22px;padding:7px 9px;border-radius:8px;background:var(--glass);border:1px solid var(--gb);" onclick="selEmoji(this,'🍕')">🍕</span>
+      <span style="cursor:pointer;font-size:22px;padding:7px 9px;border-radius:8px;background:var(--glass);border:1px solid var(--gb);" onclick="selEmoji(this,'🎉')">🎉</span>
+    </div></div>
+    <div class="moa">
+      <button class="btn btn-s" onclick="document.getElementById('mo-benefit').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-p" onclick="addBenefit()">Criar benefício</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov" id="mo-bar">
+  <div class="mo">
+    <div class="mot">Cadastrar Novo Bar</div>
+    <div class="fg"><label class="fl">Nome do bar</label><input class="fi" type="text" id="newbar-name" placeholder="Ex: The Rooftop"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="fg"><label class="fl">Bairro</label><input class="fi" type="text" id="newbar-bairro" placeholder="Asa Sul"></div>
+      <div class="fg"><label class="fl">Comissão (%)</label><input class="fi" type="number" id="newbar-com" placeholder="10" min="4" max="12" inputmode="numeric"></div>
+    </div>
+    <div class="fg"><label class="fl">E-mail</label><input class="fi" type="email" id="newbar-email" placeholder="dono@bar.com.br"></div>
+    <div class="fg"><label class="fl">Tipo</label><select class="fi" id="newbar-tipo"><option>Bar</option><option>Cervejaria</option><option>Nightclub</option><option>Rooftop</option></select></div>
+    <div class="moa">
+      <button class="btn btn-s" onclick="document.getElementById('mo-bar').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-p" onclick="addBar()">Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov" id="mo-user">
+  <div class="mo">
+    <div class="mot">Adicionar Usuário</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="fg"><label class="fl">Nome</label><input class="fi" type="text" id="newuser-name" placeholder="João Silva"></div>
+      <div class="fg"><label class="fl">Sobrenome</label><input class="fi" type="text" id="newuser-last" placeholder="Silva"></div>
+    </div>
+    <div class="fg"><label class="fl">E-mail</label><input class="fi" type="email" id="newuser-email" placeholder="usuario@email.com"></div>
+    <div class="fg"><label class="fl">Status CPF</label><select class="fi" id="newuser-cpf"><option>Verificado</option><option>Pendente</option><option>Sem CPF</option></select></div>
+    <div class="moa">
+      <button class="btn btn-s" onclick="document.getElementById('mo-user').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-p" onclick="addUser()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov" id="mo-ad">
+  <div class="mo">
+    <div class="mot">Novo Anúncio</div>
+    <div class="fg"><label class="fl">Título</label><input class="fi" type="text" id="newad-title" placeholder="Ex: Noite de Jazz"></div>
+    <div class="fg"><label class="fl">Bar parceiro</label><select class="fi" id="newad-bar"><option>Neon Bar</option><option>Sky Lounge</option><option>Craft House</option></select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="fg"><label class="fl">Início</label><input class="fi" type="date" id="newad-start"></div>
+      <div class="fg"><label class="fl">Fim</label><input class="fi" type="date" id="newad-end"></div>
+    </div>
+    <div class="fg"><label class="fl">Tipo</label><select class="fi" id="newad-tipo"><option>Banner</option><option>Destaque roxo</option><option>Pin no mapa</option></select></div>
+    <div class="moa">
+      <button class="btn btn-s" onclick="document.getElementById('mo-ad').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-p" onclick="addAd()">Criar anúncio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════ NAVIGATION ════════════
+function show(pg) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  if (pg === 'login' || pg === 'signup') {
+    document.getElementById('pg-auth').classList.add('on');
+    document.getElementById('f-login').style.display = pg === 'login' ? 'block' : 'none';
+    document.getElementById('f-signup').style.display = pg === 'signup' ? 'block' : 'none';
+  } else if (pg === 'bar-admin') {
+    document.getElementById('pg-bar-admin').classList.add('on');
+    initPhotoGrid();
+    setTimeout(drawBarCharts, 120);
+  } else if (pg === 'wyg-admin') {
+    document.getElementById('pg-wyg-admin').classList.add('on');
+    setTimeout(drawWygCharts, 120);
+  } else {
+    document.getElementById('pg-landing').classList.add('on');
+  }
+  window.scrollTo(0, 0);
+}
+
+// ════════════ SIDEBAR MOBILE ════════════
+function openSb() {
+  document.getElementById('main-sb').classList.add('open');
+  document.getElementById('sb-overlay').classList.add('show');
+}
+function closeSb() {
+  document.getElementById('main-sb').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+}
+function openWygSb() {
+  document.getElementById('wyg-sb').classList.add('open');
+  document.getElementById('wyg-sb-overlay').classList.add('show');
+}
+function closeWygSb() {
+  document.getElementById('wyg-sb').classList.remove('open');
+  document.getElementById('wyg-sb-overlay').classList.remove('show');
+}
+
+// ════════════ TABS ════════════
+function setTab(prefix, name) {
+  document.querySelectorAll('[id^="' + prefix + '-sbi-"]').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('[id^="' + prefix + '-tab-"]').forEach(el => el.classList.remove('on'));
+  const sbi = document.getElementById(prefix + '-sbi-' + name);
+  const tab = document.getElementById(prefix + '-tab-' + name);
+  if (sbi) sbi.classList.add('on');
+  if (tab) tab.classList.add('on');
+  if (prefix === 'b' && name === 'relatorios') setTimeout(drawBarRel, 120);
+  if (prefix === 'w' && name === 'ads') setTimeout(drawAdsChart, 120);
+}
+
+// ════════════ TOAST ════════════
+function toast(msg, type) {
+  type = type || 'info';
+  var wrap = document.getElementById('toasts');
+  var icons = { ok: '✓', err: '✕', info: '·' };
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = '<span style="font-weight:700;">' + (icons[type] || '·') + '</span> ' + msg;
+  wrap.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+
+// ════════════ AUTH ════════════
+function mockGlogin() {
+  toast('Autenticando com Google...', 'info');
+  setTimeout(function() { show('bar-admin'); }, 900);
+}
+function mockLogin() {
+  var e = document.getElementById('li-email').value;
+  var p = document.getElementById('li-pw').value;
+  if (!e || !p) { toast('Preencha e-mail e senha', 'err'); return; }
+  toast('Entrando...', 'info');
+  setTimeout(function() { show('bar-admin'); }, 700);
+}
+
+// ════════════ CPF FORMAT ════════════
+function fmtCPF(el) {
+  var v = el.value.replace(/\D/g, '');
+  if (v.length > 3) v = v.slice(0,3) + '.' + v.slice(3);
+  if (v.length > 7) v = v.slice(0,7) + '.' + v.slice(7);
+  if (v.length > 11) v = v.slice(0,11) + '-' + v.slice(11);
+  el.value = v.slice(0, 14);
+}
+
+// ════════════ POINTS CALC ════════════
+function calcPts() {
+  var val = parseFloat(document.getElementById('val-in').value) || 0;
+  var prev = document.getElementById('pts-prev');
+  if (val <= 0) { prev.style.display = 'none'; return; }
+  var taxa, pct;
+  if (val <= 50) { taxa = 0.05; pct = '5%'; }
+  else if (val <= 100) { taxa = 0.075; pct = '7,5%'; }
+  else if (val <= 300) { taxa = 0.10; pct = '10%'; }
+  else { taxa = 0.12; pct = '12%'; }
+  var pts = Math.floor(val * taxa * 1000);
+  document.getElementById('pts-val').textContent = pts.toLocaleString('pt-BR') + ' pontos';
+  document.getElementById('taxa-val').textContent = 'Taxa ' + pct + ' · R$' + val.toFixed(2).replace('.', ',');
+  prev.style.display = 'block';
+}
+
+// ════════════ CREDIT POINTS — adds to tx list + updates stats ════════════
+var totalPtsCredited = 284500;
+var totalCons = 12400;
+
+function creditPts() {
+  var cpf = document.getElementById('cpf-in').value;
+  var val = parseFloat(document.getElementById('val-in').value) || 0;
+  if (!cpf || cpf.length < 14) { toast('CPF inválido', 'err'); return; }
+  if (val <= 0) { toast('Valor inválido', 'err'); return; }
+  
+  var taxa;
+  if (val <= 50) taxa = 0.05;
+  else if (val <= 100) taxa = 0.075;
+  else if (val <= 300) taxa = 0.10;
+  else taxa = 0.12;
+  var pts = Math.floor(val * taxa * 1000);
+
+  // Mask CPF for display
+  var masked = cpf.slice(0,3) + '.***.***-' + cpf.slice(-2);
+
+  // Add to transaction list in pontos tab
+  var hist = document.getElementById('tx-hist');
+  var now = new Date();
+  var timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  var row = document.createElement('div');
+  row.className = 'txrow';
+  row.style.animation = 'up .3s ease';
+  row.innerHTML = '<div class="txic">CPF</div><div class="txin"><div class="txin-t">' + masked + '</div><div class="txin-s">Hoje ' + timeStr + ' · R$' + val.toFixed(2).replace('.',',') + '</div></div><span class="bdg bdg-ok">+' + pts.toLocaleString('pt-BR') + '</span>';
+  hist.insertBefore(row, hist.firstChild);
+
+  // Also add to overview tx-list
+  var txList = document.getElementById('tx-list');
+  if (txList) {
+    var row2 = document.createElement('div');
+    row2.className = 'txrow';
+    row2.style.animation = 'up .3s ease';
+    row2.innerHTML = '<div class="txic">CPF</div><div class="txin"><div class="txin-t">' + masked + '</div><div class="txin-s">Hoje ' + timeStr + ' · R$' + val.toFixed(2).replace('.',',') + '</div></div><div style="font-size:12px;font-weight:700;color:#d966e0;">+' + pts.toLocaleString('pt-BR') + '</div>';
+    txList.insertBefore(row2, txList.firstChild);
+  }
+
+  // Update stats
+  totalPtsCredited += pts;
+  totalCons += val;
+  var statPts = document.getElementById('stat-pts');
+  if (statPts) statPts.textContent = totalPtsCredited.toLocaleString('pt-BR');
+  var statCons = document.getElementById('stat-cons');
+  if (statCons) statCons.textContent = 'R$' + (totalCons/1000).toFixed(1) + 'k';
+
+  toast('Pontos creditados para ' + masked, 'ok');
+  document.getElementById('cpf-in').value = '';
+  document.getElementById('val-in').value = '';
+  document.getElementById('pts-prev').style.display = 'none';
+}
+
+// ════════════ VALIDATE CODE ════════════
+var benefitCodes = {
+  'WYG-CH001': { name: 'Chopp artesanal 300ml', pts: 17000 },
+  'WYG-BT001': { name: 'Porção de batata frita', pts: 12000 },
+  'WYG-EN001': { name: 'Entrada gratuita', pts: 25000 },
+  'WYG-TEST': { name: 'Benefício de teste', pts: 5000 },
+};
+var totalResgates = 47;
+
+function validateCode() {
+  var code = document.getElementById('code-in').value.trim().toUpperCase();
+  var result = document.getElementById('code-result');
+  if (!code) { toast('Insira o código', 'err'); return; }
+  
+  var benefit = benefitCodes[code];
+  if (!benefit) {
+    // Try prefix match
+    if (code.startsWith('WYG-')) {
+      result.style.display = 'block';
+      result.style.background = 'rgba(230,57,70,.08)';
+      result.style.borderColor = 'rgba(230,57,70,.22)';
+      result.innerHTML = '<strong style="color:var(--hot);">Código inválido ou expirado.</strong><br><span style="font-size:12px;color:var(--slate);">Verifique o código com o cliente ou peça para gerar um novo.</span>';
+      toast('Código inválido', 'err');
+    } else {
+      toast('Formato inválido. Use WYG-XXXXXX', 'err');
+    }
+    return;
+  }
+
+  result.style.display = 'block';
+  result.style.background = 'rgba(6,214,160,.08)';
+  result.style.borderColor = 'rgba(6,214,160,.22)';
+  result.innerHTML = '<strong style="color:var(--ok);">✓ Benefício validado!</strong><br><span style="font-size:13px;">' + benefit.name + '</span><br><span style="font-size:12px;color:var(--slate);">-' + benefit.pts.toLocaleString('pt-BR') + ' pontos debitados do cliente.</span>';
+
+  // Add to history
+  var hist = document.getElementById('tx-hist');
+  var now = new Date();
+  var timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  var row = document.createElement('div');
+  row.className = 'txrow';
+  row.style.animation = 'up .3s ease';
+  row.innerHTML = '<div class="txic" style="background:rgba(230,57,70,.12);color:var(--hot);">RES</div><div class="txin"><div class="txin-t">' + benefit.name + '</div><div class="txin-s">Hoje ' + timeStr + ' · ' + code + '</div></div><span class="bdg bdg-err">-' + benefit.pts.toLocaleString('pt-BR') + '</span>';
+  hist.insertBefore(row, hist.firstChild);
+
+  totalResgates++;
+  var statRes = document.getElementById('stat-res');
+  if (statRes) statRes.textContent = totalResgates;
+
+  toast('Resgate confirmado: ' + benefit.name, 'ok');
+  document.getElementById('code-in').value = '';
+  setTimeout(function() { result.style.display = 'none'; }, 5000);
+}
+
+// ════════════ PHOTO UPLOAD ════════════
+var photoSlots = [null, null, null, null, null];
+
+function initPhotoGrid() {
+  renderPhotoGrid();
+}
+
+function renderPhotoGrid() {
+  var grid = document.getElementById('photo-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  var filled = photoSlots.filter(function(s) { return s !== null; });
+  filled.forEach(function(src, i) {
+    var slot = document.createElement('div');
+    slot.className = 'photo-slot';
+    slot.innerHTML = '<img src="' + src + '" alt="Foto"><button class="photo-rm" onclick="removePhoto(' + i + ')">✕</button>';
+    grid.appendChild(slot);
+  });
+  if (filled.length < 5) {
+    var add = document.createElement('div');
+    add.className = 'photo-add';
+    add.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(170,183,196,.5)" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Adicionar</span>';
+    add.onclick = function() { document.getElementById('file-input').click(); };
+    grid.appendChild(add);
+  }
+}
+
+function handleFileUpload(input) {
+  var files = Array.from(input.files);
+  var filled = photoSlots.filter(function(s) { return s !== null; }).length;
+  var available = 5 - filled;
+  if (available === 0) { toast('Máximo de 5 fotos atingido', 'err'); return; }
+  var toProcess = files.slice(0, available);
+  if (files.length > available) toast(files.length - available + ' foto(s) ignorada(s) — limite atingido', 'info');
+  var done = 0;
+  toProcess.forEach(function(file) {
+    if (!file.type.startsWith('image/')) { toast(file.name + ' não é uma imagem', 'err'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast(file.name + ' excede 5 MB', 'err'); return; }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var idx = photoSlots.indexOf(null);
+      if (idx !== -1) { photoSlots[idx] = e.target.result; done++; }
+      if (done === toProcess.length) { renderPhotoGrid(); toast(done + ' foto(s) adicionada(s)', 'ok'); }
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function removePhoto(i) {
+  var filled = photoSlots.filter(function(s) { return s !== null; });
+  filled.splice(i, 1);
+  photoSlots = filled;
+  while (photoSlots.length < 5) photoSlots.push(null);
+  renderPhotoGrid();
+  toast('Foto removida', 'err');
+}
+
+// ════════════ BENEFITS — integrated ════════════
+var selectedEmoji = '🍺';
+
+function selEmoji(el, emoji) {
+  selectedEmoji = emoji;
+  document.querySelectorAll('#emoji-picker span').forEach(function(s) { s.style.outline = 'none'; });
+  el.style.outline = '2px solid var(--hi)';
+}
+
+function addBenefit() {
+  var name = document.getElementById('ben-name').value.trim();
+  var pts = parseInt(document.getElementById('ben-pts').value);
+  var stock = document.getElementById('ben-stock').value || '∞';
+  var dateVal = document.getElementById('ben-date').value;
+  if (!name) { toast('Informe o nome do benefício', 'err'); return; }
+  if (!pts || pts <= 0) { toast('Informe os pontos', 'err'); return; }
+
+  var dateStr = dateVal ? new Date(dateVal).toLocaleDateString('pt-BR') : 'Sem validade';
+  var list = document.getElementById('benefit-list');
+  var div = document.createElement('div');
+  div.className = 'bc';
+  div.style.animation = 'up .35s ease';
+  div.innerHTML = '<div class="bico">' + selectedEmoji + '</div><div style="flex:1"><div class="bn">' + name + '</div><div class="bpts">' + pts.toLocaleString('pt-BR') + ' pontos</div><div class="bst">Estoque: ' + stock + ' · Válido até ' + dateStr + '</div></div><span class="bdg bdg-ok" style="margin-right:7px;">Ativo</span><button class="btn btn-err btn-sm" onclick="removeBenefit(this)">Remover</button>';
+  list.insertBefore(div, list.firstChild);
+
+  // Register code for testing
+  var codeKey = 'WYG-' + name.substring(0,2).toUpperCase() + Math.floor(Math.random()*1000);
+  benefitCodes[codeKey] = { name: name, pts: pts };
+
+  document.getElementById('mo-benefit').classList.remove('show');
+  ['ben-name','ben-pts','ben-stock','ben-date'].forEach(function(id) { document.getElementById(id).value = ''; });
+  toast('Benefício "' + name + '" criado!', 'ok');
+}
+
+function removeBenefit(btn) {
+  btn.closest('.bc').style.animation = 'fi .2s ease reverse';
+  setTimeout(function() { btn.closest('.bc').remove(); }, 180);
+  toast('Benefício removido', 'err');
+}
+
+// ════════════ BARS — integrated ════════════
+var barCounter = 5;
+
+function addBar() {
+  var name = document.getElementById('newbar-name').value.trim();
+  var bairro = document.getElementById('newbar-bairro').value.trim() || '—';
+  var com = document.getElementById('newbar-com').value || '10';
+  if (!name) { toast('Informe o nome do bar', 'err'); return; }
+
+  barCounter++;
+  var tbody = document.getElementById('bars-tbody');
+  var tr = document.createElement('tr');
+  tr.setAttribute('data-name', name.toLowerCase());
+  tr.style.animation = 'up .35s ease';
+  tr.innerHTML = '<td><div style="font-weight:600;">' + name + '</div><div style="font-size:10px;color:var(--slate);">BAR-00' + barCounter + '</div></td><td>' + bairro + '</td><td>' + com + '%</td><td>—</td><td style="color:var(--slate);">—</td><td><span class="bdg bdg-warn">Cortesia</span></td><td><span class="bdg bdg-warn">Pendente</span></td><td><button class="btn btn-ok btn-sm" style="margin-right:4px;" onclick="approveBar(this)">Aprovar</button><button class="btn btn-err btn-sm" onclick="removeBar(this)">Remover</button></td>';
+  tbody.insertBefore(tr, tbody.firstChild);
+
+  // Update counter in subtitle
+  var sub = document.getElementById('bars-count-sub');
+  if (sub) { var n = parseInt(sub.textContent) + 1; sub.textContent = n + ' cadastrados'; }
+  var wstat = document.getElementById('w-stat-bars');
+  if (wstat) wstat.textContent = parseInt(wstat.textContent) + 1;
+
+  // Add to ad bar select
+  var sel = document.getElementById('newad-bar');
+  if (sel) { var opt = document.createElement('option'); opt.textContent = name; sel.appendChild(opt); }
+
+  document.getElementById('mo-bar').classList.remove('show');
+  ['newbar-name','newbar-bairro','newbar-com','newbar-email'].forEach(function(id) { document.getElementById(id).value = ''; });
+  toast('"' + name + '" cadastrado!', 'ok');
+}
+
+function approveBar(btn) {
+  var tr = btn.closest('tr');
+  var cells = tr.querySelectorAll('td');
+  cells[6].innerHTML = '<span class="bdg bdg-ok">Ativo</span>';
+  btn.closest('td').innerHTML = '<button class="btn btn-err btn-sm" onclick="removeBar(this)">Remover</button>';
+  toast('Bar aprovado com sucesso!', 'ok');
+}
+
+function removeBar(btn) {
+  var name = btn.closest('tr').querySelector('td div').textContent;
+  btn.closest('tr').remove();
+  var sub = document.getElementById('bars-count-sub');
+  if (sub) { var n = Math.max(0, parseInt(sub.textContent) - 1); sub.textContent = n + ' cadastrados'; }
+  toast('"' + name + '" removido', 'err');
+}
+
+function filterBars(q) {
+  document.querySelectorAll('#bars-tbody tr').forEach(function(r) {
+    r.style.display = r.getAttribute('data-name').includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ════════════ USERS — integrated ════════════
+var userCounter = 12847;
+
+function addUser() {
+  var first = document.getElementById('newuser-name').value.trim();
+  var last = document.getElementById('newuser-last').value.trim();
+  var email = document.getElementById('newuser-email').value.trim();
+  var cpfStatus = document.getElementById('newuser-cpf').value;
+  if (!first) { toast('Informe o nome', 'err'); return; }
+
+  var initials = (first[0] + (last ? last[0] : '')).toUpperCase();
+  var fullName = first + (last ? ' ' + last : '');
+  var cpfBadge = cpfStatus === 'Verificado' ? '<span class="bdg bdg-ok">Verificado</span>' : cpfStatus === 'Pendente' ? '<span class="bdg bdg-warn">Pendente</span>' : '<span class="bdg bdg-err">Sem CPF</span>';
+
+  var tbody = document.getElementById('users-tbody');
+  var tr = document.createElement('tr');
+  tr.setAttribute('data-name', fullName.toLowerCase());
+  tr.style.animation = 'up .35s ease';
+  tr.innerHTML = '<td><div style="display:flex;align-items:center;gap:7px;"><div class="av" style="width:22px;height:22px;font-size:9px;">' + initials + '</div><div><div style="font-size:12px;font-weight:600;">' + fullName + '</div><div style="font-size:10px;color:var(--slate);">' + (email || '—') + '</div></div></div></td><td style="color:#d966e0;font-weight:700;">0</td><td>0</td><td>' + cpfBadge + '</td><td>Mar/26</td><td><span class="bdg bdg-ok">Ativo</span></td><td><button class="btn btn-err btn-sm" onclick="removeUser(this)">Remover</button></td>';
+  tbody.insertBefore(tr, tbody.firstChild);
+
+  userCounter++;
+  var sub = document.getElementById('users-count-sub');
+  if (sub) sub.textContent = userCounter.toLocaleString('pt-BR') + ' ativos';
+  var wstat = document.getElementById('w-stat-users');
+  if (wstat) wstat.textContent = userCounter.toLocaleString('pt-BR');
+
+  document.getElementById('mo-user').classList.remove('show');
+  ['newuser-name','newuser-last','newuser-email'].forEach(function(id) { document.getElementById(id).value = ''; });
+  toast('"' + fullName + '" adicionado!', 'ok');
+}
+
+function removeUser(btn) {
+  var name = btn.closest('tr').querySelector('td div div').textContent;
+  btn.closest('tr').remove();
+  userCounter = Math.max(0, userCounter - 1);
+  var sub = document.getElementById('users-count-sub');
+  if (sub) sub.textContent = userCounter.toLocaleString('pt-BR') + ' ativos';
+  toast('"' + name + '" removido', 'err');
+}
+
+function filterUsers(q) {
+  document.querySelectorAll('#users-tbody tr').forEach(function(r) {
+    r.style.display = r.getAttribute('data-name').includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ════════════ ADS — integrated ════════════
+function addAd() {
+  var title = document.getElementById('newad-title').value.trim();
+  var bar = document.getElementById('newad-bar').value;
+  var tipo = document.getElementById('newad-tipo').value;
+  var start = document.getElementById('newad-start').value;
+  var end = document.getElementById('newad-end').value;
+  if (!title) { toast('Informe o título', 'err'); return; }
+
+  var dateRange = start && end ? new Date(start).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) + ' – ' + new Date(end).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) : 'Sem data';
+  var tipoBadge = tipo === 'Destaque roxo' ? '<span class="bdg bdg-pur">Destaque roxo</span>' : '<span class="bdg bdg-info">Banner</span>';
+  var bgColor = tipo === 'Destaque roxo' ? 'background:linear-gradient(135deg,var(--hi),var(--pur))' : 'background:linear-gradient(135deg,var(--deep),var(--teal))';
+  var list = document.getElementById('ads-list');
+  var div = document.createElement('div');
+  div.className = 'bc';
+  div.style.animation = 'up .35s ease';
+  if (tipo === 'Destaque roxo') { div.style.borderColor = 'rgba(156,25,163,.28)'; div.style.background = 'rgba(156,25,163,.05)'; }
+  div.innerHTML = '<div style="width:50px;height:40px;border-radius:9px;' + bgColor + ';display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">📢</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">' + tipoBadge + '<span class="bdg bdg-ok">Ativo</span></div><div class="bn">' + title + ' – ' + bar + '</div><div class="bst">' + dateRange + ' · 0 impressões</div></div><button class="btn btn-err btn-sm" onclick="this.closest(\'.bc\').remove();toast(\'Anúncio removido\',\'err\')">Remover</button>';
+  list.insertBefore(div, list.firstChild);
+
+  document.getElementById('mo-ad').classList.remove('show');
+  ['newad-title','newad-start','newad-end'].forEach(function(id) { document.getElementById(id).value = ''; });
+  toast('"' + title + '" criado!', 'ok');
+}
+
+// ════════════ CHARTS ════════════
+function drawLineChart(id, labels, data) {
+  var canvas = document.getElementById(id);
+  if (!canvas) return;
+  var W = canvas.offsetWidth || 360, H = canvas.offsetHeight || 160;
+  canvas.width = W; canvas.height = H;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  var pad = { t:12, r:12, b:24, l:40 };
+  var cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+  var max = Math.max.apply(null, data) * 1.12;
+  var xi = function(i) { return pad.l + (i / (data.length - 1)) * cw; };
+  var yi = function(v) { return pad.t + ch - (v / max) * ch; };
+  ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 1;
+  for (var i = 0; i <= 4; i++) { var yp = pad.t + (ch / 4) * i; ctx.beginPath(); ctx.moveTo(pad.l, yp); ctx.lineTo(pad.l + cw, yp); ctx.stroke(); }
+  var grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+  grad.addColorStop(0, 'rgba(156,25,163,.24)'); grad.addColorStop(1, 'rgba(156,25,163,.0)');
+  ctx.beginPath(); ctx.moveTo(xi(0), yi(data[0]));
+  data.forEach(function(v, i) { if (i > 0) ctx.lineTo(xi(i), yi(v)); });
+  ctx.lineTo(xi(data.length - 1), H - pad.b); ctx.lineTo(xi(0), H - pad.b); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(xi(0), yi(data[0]));
+  data.forEach(function(v, i) { if (i > 0) ctx.lineTo(xi(i), yi(v)); });
+  ctx.strokeStyle = '#9c19a3'; ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.stroke();
+  data.forEach(function(v, i) { ctx.beginPath(); ctx.arc(xi(i), yi(v), 3.5, 0, Math.PI * 2); ctx.fillStyle = '#d966e0'; ctx.fill(); });
+  ctx.fillStyle = 'rgba(170,183,196,.52)'; ctx.font = '10px DM Sans'; ctx.textAlign = 'center';
+  labels.forEach(function(l, i) { ctx.fillText(l, xi(i), H - 5); });
+  ctx.textAlign = 'right';
+  var step = Math.round(max / 4);
+  for (var j = 0; j <= 4; j++) { var val = step * (4 - j); ctx.fillText(val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val, pad.l - 4, pad.t + (ch / 4) * j + 4); }
+}
+
+function drawBarChart(id, labels, data) {
+  var canvas = document.getElementById(id);
+  if (!canvas) return;
+  var W = canvas.offsetWidth || 300, H = canvas.offsetHeight || 130;
+  canvas.width = W; canvas.height = H;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  var pad = { t:8, r:8, b:20, l:8 };
+  var cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+  var max = Math.max.apply(null, data) * 1.15;
+  var gap = cw / labels.length, bw = gap * 0.52;
+  labels.forEach(function(l, i) {
+    var bx = pad.l + gap * i + (gap - bw) / 2;
+    var bh = (data[i] / max) * ch, by = pad.t + ch - bh;
+    var g = ctx.createLinearGradient(0, by, 0, by + bh);
+    g.addColorStop(0, '#9c19a3'); g.addColorStop(1, 'rgba(62,44,125,.28)');
+    ctx.fillStyle = g;
+    if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 4); ctx.fill(); }
+    else { ctx.fillRect(bx, by, bw, bh); }
+    ctx.fillStyle = 'rgba(170,183,196,.5)'; ctx.font = '9.5px DM Sans'; ctx.textAlign = 'center';
+    ctx.fillText(l, bx + bw / 2, H - 4);
+  });
+}
+
+function drawBarCharts() { drawLineChart('chart-consumo', ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'], [2800, 3400, 4100, 4900]); }
+function drawBarRel() { drawBarChart('chart-hours', ['18h','19h','20h','21h','22h','23h','00h','01h'], [12,28,45,72,88,95,78,42]); }
+function drawWygCharts() { drawLineChart('chart-users', ['Jan', 'Fev', 'Mar S1', 'Mar S2', 'Mar S3'], [5200, 8400, 10800, 11900, 12847]); }
+function drawAdsChart() { drawBarChart('chart-ads', ['Neon', 'Sky', 'Craft', 'Rooftop', 'Jazz'], [12400, 8700, 6200, 4500, 5200]); }
+
+// ════════════ AI CHAT ════════════
+async function callClaude(messages, sys) {
+  try {
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: messages })
+    });
+    var d = await r.json();
+    return (d.content && d.content[0] && d.content[0].text) ? d.content[0].text : 'Não consegui processar.';
+  } catch(e) { return 'Erro de conexão. Tente novamente.'; }
+}
+
+var barSys = 'Você é o assistente do WYG (Where You Going), app de bares em Brasília. Responda ao dono de bar parceiro em português, direto e conciso (máx 3 parágrafos) sobre: pontos (1000pts ≈ R$1), benefícios, escala frio/quente, comissão (4-12% a partir do 4º mês), painel.';
+var wygSys = 'Você é analista estratégico interno do WYG. Dados atuais: 12.847 usuários, 89 bares, R$8.2k/mês faturamento. Responda em português, conciso e analítico, com insights sobre crescimento, faturamento e produto.';
+var barHist = [], wygHist = [];
+
+function appendMsg(c, text, type) {
+  var d = document.createElement('div');
+  d.className = 'aim ' + type;
+  d.textContent = text;
+  d.style.animation = 'up .3s ease';
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d;
+}
+function appendLoading(c) {
+  var d = document.createElement('div');
+  d.className = 'aim bot';
+  d.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+  return d;
+}
+
+async function sendBarChat() {
+  var inp = document.getElementById('bar-chat-input');
+  var msgs = document.getElementById('bar-chat-msgs');
+  var txt = inp.value.trim(); if (!txt) return;
+  inp.value = '';
+  appendMsg(msgs, txt, 'usr');
+  var ld = appendLoading(msgs);
+  barHist.push({ role: 'user', content: txt });
+  var rep = await callClaude(barHist, barSys);
+  ld.remove();
+  barHist.push({ role: 'assistant', content: rep });
+  appendMsg(msgs, rep, 'bot');
+}
+async function sendWygChat() {
+  var inp = document.getElementById('wyg-chat-input');
+  var msgs = document.getElementById('wyg-chat-msgs');
+  var txt = inp.value.trim(); if (!txt) return;
+  inp.value = '';
+  appendMsg(msgs, txt, 'usr');
+  var ld = appendLoading(msgs);
+  wygHist.push({ role: 'user', content: txt });
+  var rep = await callClaude(wygHist, wygSys);
+  ld.remove();
+  wygHist.push({ role: 'assistant', content: rep });
+  appendMsg(msgs, rep, 'bot');
+}
+function quickBarQ(q) { document.getElementById('bar-chat-input').value = q; sendBarChat(); }
+function quickWygQ(q) { document.getElementById('wyg-chat-input').value = q; sendWygChat(); }
+
+// ════════════ MODAL CLOSE ════════════
+document.querySelectorAll('.mov').forEach(function(m) {
+  m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('show'); });
+});
+</script>
+</body>
+</html>
